@@ -49,7 +49,8 @@ services:
 
   # --- Prometheus TSDB, scrapes node_exporter (host) + cadvisor ---
   prometheus:
-    image: prom/prometheus:v2.54.1
+    build: ./prometheus
+    image: status-prometheus:v2
     container_name: status-prometheus
     restart: unless-stopped
     user: "65534:65534"  # nobody
@@ -61,7 +62,6 @@ services:
       - --web.listen-address=0.0.0.0:9090
       - --web.enable-lifecycle
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     extra_hosts:
       - "host.docker.internal:host-gateway"
