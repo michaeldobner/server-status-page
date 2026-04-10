@@ -78,7 +78,7 @@ def _strip_coolify_suffix(name: str) -> str:
 def _lookup_service(raw_name: str) -> dict[str, Any] | None:
     """Return service_map entry for a container name, or None if hidden/unknown."""
     base = _strip_coolify_suffix(raw_name)
-    for key in _HIDDEN_PREFIXES:
+    for key in HIDDEN_PREFIXES:
         if base.startswith(key.rstrip("-")):
             return None  # hidden entirely
     for key in _SERVICE_MAP_KEYS:
