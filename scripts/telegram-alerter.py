@@ -505,6 +505,23 @@ def _respond(view: str, d: dict | None, message_id: int | None = None) -> None:
         tg_send(text, kb)
 
 
+WELCOME_TEXT = (
+    f"👋 <b>Server Monitor</b>\n\n"
+    f"Your server at a glance — tap a button or type a command.\n\n"
+    f'🔗 <a href="{STATUS_PAGE}">Open dashboard</a>'
+)
+
+WELCOME_KB = [
+    [
+        {"text": "🖥 Status",    "callback_data": "refresh:status"},
+        {"text": "🐳 Docker",    "callback_data": "refresh:docker"},
+    ],
+    [
+        {"text": "⚡ Top",       "callback_data": "refresh:top"},
+        {"text": "🛡 Fail2Ban",  "callback_data": "refresh:f2b"},
+    ],
+]
+
 HELP_TEXT = (
     "<b>Commands</b>\n\n"
     "/status  — server overview\n"
@@ -533,7 +550,10 @@ def command_thread_fn() -> None:
 
                 if action == "refresh":
                     tg_answer(cb_id, "Refreshing…")
-                    _respond(arg, _fetch(), mid)
+                    # Welcome message buttons open a new message; refresh buttons edit in place
+                    cb_text = cb.get("message", {}).get("text", "")
+                    is_welcome = "Server Monitor" in cb_text
+                    _respond(arg, _fetch(), None if is_welcome else mid)
 
                 elif action == "ack":
                     with _state_lock:
@@ -571,7 +591,9 @@ def command_thread_fn() -> None:
             cmd = text.strip().split()[0].lower().split("@")[0]
             print(f"[bot] {cmd}", file=sys.stderr)
 
-            if cmd in ("/help", "/start"):
+            if cmd == "/start":
+                tg_send(WELCOME_TEXT, WELCOME_KB)
+            elif cmd == "/help":
                 tg_send(HELP_TEXT)
             elif cmd == "/status":
                 _respond("status", _fetch())
