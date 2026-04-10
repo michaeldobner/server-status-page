@@ -424,6 +424,24 @@ async def healthz() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/api/test-network")
+async def test_network() -> JSONResponse:
+    """Diagnose outbound connectivity."""
+    import socket
+    results = {}
+    for host, port in [("api.telegram.org", 443), ("8.8.8.8", 53), ("n8nmdobner.duckdns.org", 443)]:
+        try:
+            loop = asyncio.get_event_loop()
+            await asyncio.wait_for(
+                loop.run_in_executor(None, lambda h=host, p=port: socket.create_connection((h, p), timeout=5)),
+                timeout=6,
+            )
+            results[f"{host}:{port}"] = "ok"
+        except Exception as e:
+            results[f"{host}:{port}"] = f"{type(e).__name__}: {e}"
+    return JSONResponse(results)
+
+
 @app.get("/")
 async def index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
