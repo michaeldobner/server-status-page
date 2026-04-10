@@ -52,15 +52,8 @@ n8n:
     warn: 1500
     crit: 5000
 
-# Alerting destinations (currently INACTIVE — placeholder for v2.1 email alerter)
+# Alerting via Telegram bot
+# Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID as environment variables in Coolify.
+# cooldown_minutes: minimum gap between repeat alerts for the same metric.
 alerts:
-  enabled: false
   cooldown_minutes: 15
-  channels:
-    email:
-      enabled: false
-      smtp_host: ""
-      smtp_port: 587
-      smtp_user: ""
-      from_addr: ""
-      to_addr: ""
