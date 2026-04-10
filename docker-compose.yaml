@@ -1,5 +1,25 @@
 services:
 
+  # --- Host metrics (CPU/RAM/Net/FS/Timex) ---
+  # Runs in-stack so Prometheus (internal network) can scrape it
+  # without exposing port 9100 on the public interface.
+  node_exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: status-node-exporter
+    restart: unless-stopped
+    command:
+      - --path.rootfs=/host
+      - --web.listen-address=0.0.0.0:9100
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    expose:
+      - "9100"
+    labels:
+      - "traefik.enable=false"
+      - "coolify.managed=true"
+
   # --- Per-container metrics (CPU/RAM) ---
   # cadvisor mounts the docker socket read-only. Trust surface: the
   # status-page container (public) does NOT touch the socket — only
