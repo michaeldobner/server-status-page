@@ -110,6 +110,8 @@ services:
         condition: service_healthy
       dockerproxy:
         condition: service_started
+    ports:
+      - "127.0.0.1:8001:8000"   # host-only: for telegram-alerter systemd service
     expose:
       - "8000"
     labels:

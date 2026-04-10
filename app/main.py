@@ -23,7 +23,6 @@ import yaml
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse
 
-from app import alerter as _alerter
 
 # ---------- Configuration ----------
 PROMETHEUS_URL = os.environ.get("PROMETHEUS_URL", "http://prometheus:9090")
@@ -34,8 +33,6 @@ TOP_JSON = Path(os.environ.get("TOP_JSON", "/host/status/top.json"))
 UPDATE_INTERVAL = int(os.environ.get("UPDATE_INTERVAL", "30"))
 STATIC_DIR = Path(__file__).parent / "static"
 THRESHOLDS_PATH = Path(__file__).parent / "thresholds.yaml"
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 
 app = FastAPI(
     title="Server Status Page v2",
@@ -44,12 +41,6 @@ app = FastAPI(
     openapi_url=None,    # disable /openapi.json schema dump
 )
 
-
-@app.on_event("startup")
-async def _startup() -> None:
-    asyncio.create_task(
-        _alerter.start(collect_all, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
-    )
 
 # ---------- Thresholds ----------
 try:
