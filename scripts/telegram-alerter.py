@@ -485,8 +485,15 @@ def alert_thread_fn() -> None:
 # ── Command + callback thread ─────────────────────────────────────────────────
 
 def _kb(view: str) -> list:
-    """Standard keyboard: refresh button for a given view."""
-    return [[{"text": "🔄 Refresh", "callback_data": f"refresh:{view}"}]]
+    """Standard keyboard: refresh + home buttons."""
+    return [[
+        {"text": "🔄 Refresh", "callback_data": f"refresh:{view}"},
+        {"text": "🏠 Home",    "callback_data": "home:_"},
+    ]]
+
+
+def tg_delete(message_id: int) -> None:
+    tg_call("deleteMessage", {"chat_id": CHAT_ID, "message_id": message_id})
 
 
 def _respond(view: str, d: dict | None, message_id: int | None = None) -> None:
@@ -549,9 +556,13 @@ def command_thread_fn() -> None:
                 mid    = cb.get("message", {}).get("message_id")
                 action, _, arg = data.partition(":")
 
-                if action == "refresh":
+                if action == "home":
+                    tg_answer(cb_id)
+                    tg_delete(mid)
+                    tg_send(WELCOME_TEXT, WELCOME_KB)
+
+                elif action == "refresh":
                     tg_answer(cb_id, "Refreshing…")
-                    # Welcome message buttons open a new message; refresh buttons edit in place
                     cb_text = cb.get("message", {}).get("text", "")
                     is_welcome = "Server Monitor" in cb_text
                     _respond(arg, _fetch(), None if is_welcome else mid)
