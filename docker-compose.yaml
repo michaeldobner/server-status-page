@@ -1,33 +1,117 @@
 services:
-  status:
-    build: .
-    image: server-status-page:latest
-    container_name: status-page
+
+  # --- Read-only Docker socket proxy (minimal scope for cadvisor) ---
+  dockerproxy:
+    image: tecnativa/docker-socket-proxy:0.3.0
+    container_name: status-dockerproxy
     restart: unless-stopped
-    pid: host
     environment:
-      - N8N_URL=https://n8nmdobner.duckdns.org
-      - FAIL2BAN_JSON=/host/status/fail2ban.json
-      - HOST_ROOT=/host/root
-      - UPDATE_INTERVAL=30
+      CONTAINERS: 1
+      IMAGES: 1
+      INFO: 1
+      PING: 1
+      VERSION: 1
+      NETWORKS: 1
+      SERVICES: 0
+      TASKS: 0
+      VOLUMES: 0
+      POST: 0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    expose:
+      - "2375"
+    labels:
+      - "traefik.enable=false"
+      - "coolify.managed=true"
+
+  # --- Per-container metrics (CPU/RAM) ---
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.2
+    container_name: status-cadvisor
+    restart: unless-stopped
+    command:
+      - --housekeeping_interval=15s
+      - --docker_only=true
+      - --store_container_labels=false
+      - --disable_metrics=disk,diskIO,accelerator,cpu_topology,memory_numa,tcp,udp,percpu,sched,process,hugetlb,referenced_memory,resctrl,cpuset,advtcp,memory_numa
+    environment:
+      - DOCKER_HOST=tcp://dockerproxy:2375
+    volumes:
+      - /:/rootfs:ro
+      - /sys:/sys:ro
+    depends_on:
+      - dockerproxy
+    expose:
+      - "8080"
+    labels:
+      - "traefik.enable=false"
+      - "coolify.managed=true"
+
+  # --- Prometheus TSDB, scrapes node_exporter (host) + cadvisor ---
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: status-prometheus
+    restart: unless-stopped
+    user: "65534:65534"  # nobody
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --storage.tsdb.retention.size=500MB
+      - --web.listen-address=0.0.0.0:9090
+      - --web.enable-lifecycle
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "9090"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    labels:
+      - "traefik.enable=false"
+      - "coolify.managed=true"
+
+  # --- Status page (public, behind Traefik) ---
+  status:
+    build: .
+    image: server-status-page:v2
+    container_name: status-page
+    restart: unless-stopped
+    environment:
+      - PROMETHEUS_URL=http://prometheus:9090
+      - N8N_URL=https://n8nmdobner.duckdns.org
+      - FAIL2BAN_JSON=/host/status/fail2ban.json
+      - TOP_JSON=/host/status/top.json
+      - UPDATE_INTERVAL=30
+    volumes:
       - /var/lib/status:/host/status:ro
-      - /:/host/root:ro
-    ports:
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    expose:
       - "8000"
     labels:
       - "traefik.enable=true"
-      # HTTP: redirect to HTTPS
-      - "traefik.http.routers.status-http.rule=Host(`statusmdobner.duckdns.org`)"
-      - "traefik.http.routers.status-http.entrypoints=http"
-      - "traefik.http.routers.status-http.middlewares=status-https-redirect"
-      - "traefik.http.middlewares.status-https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.status-https-redirect.redirectscheme.permanent=true"
+      # HTTP -> HTTPS redirect
+      - "traefik.http.routers.statusv2-http.rule=Host(`statusmdobner.duckdns.org`)"
+      - "traefik.http.routers.statusv2-http.entrypoints=http"
+      - "traefik.http.routers.statusv2-http.middlewares=statusv2-https-redirect"
+      - "traefik.http.middlewares.statusv2-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.statusv2-https-redirect.redirectscheme.permanent=true"
       # HTTPS with Let's Encrypt
-      - "traefik.http.routers.status-https.rule=Host(`statusmdobner.duckdns.org`)"
-      - "traefik.http.routers.status-https.entrypoints=https"
-      - "traefik.http.routers.status-https.tls=true"
-      - "traefik.http.routers.status-https.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.status-https.service=status-svc"
-      - "traefik.http.services.status-svc.loadbalancer.server.port=8000"
+      - "traefik.http.routers.statusv2-https.rule=Host(`statusmdobner.duckdns.org`)"
+      - "traefik.http.routers.statusv2-https.entrypoints=https"
+      - "traefik.http.routers.statusv2-https.tls=true"
+      - "traefik.http.routers.statusv2-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.statusv2-https.service=statusv2-svc"
+      - "traefik.http.services.statusv2-svc.loadbalancer.server.port=8000"
+      - "coolify.managed=true"
+
+volumes:
+  prometheus_data:

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="color-scheme" content="dark" />
 <title>Server Status · statusmdobner</title>
-<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='8' fill='%2310b981'/></svg>" />
+<link id="favicon" rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='8' fill='%2310b981'/></svg>" />
 <style>
 :root {
   --bg: #0a0a0a;
@@ -43,12 +43,11 @@ html, body {
 }
 
 .page {
-  max-width: 980px;
+  max-width: 1040px;
   margin: 0 auto;
   padding: 32px 20px 80px;
 }
 
-/* ---------- Header ---------- */
 header {
   display: flex;
   align-items: center;
@@ -57,27 +56,11 @@ header {
   gap: 16px;
   flex-wrap: wrap;
 }
-header .brand {
-  display: flex; align-items: center; gap: 12px;
-}
-header h1 {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--text);
-}
-header .host {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--text-faint);
-}
-.last-update {
-  font-size: 12px;
-  color: var(--text-faint);
-  font-family: var(--mono);
-}
+header .brand { display: flex; align-items: center; gap: 12px; }
+header h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+header .host { font-family: var(--mono); font-size: 12px; color: var(--text-faint); }
+.last-update { font-size: 12px; color: var(--text-faint); font-family: var(--mono); }
 
-/* ---------- Overall banner ---------- */
 .banner {
   display: flex;
   align-items: center;
@@ -91,18 +74,10 @@ header .host {
 .banner.ok { border-color: rgba(16, 185, 129, 0.3); background: linear-gradient(180deg, var(--green-bg), transparent); }
 .banner.warn { border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(180deg, var(--yellow-bg), transparent); }
 .banner.crit { border-color: rgba(239, 68, 68, 0.3); background: linear-gradient(180deg, var(--red-bg), transparent); }
-.banner-title {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-.banner-sub {
-  font-size: 13px;
-  color: var(--text-dim);
-}
+.banner-title { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.banner-sub { font-size: 13px; color: var(--text-dim); }
 .banner .ind { width: 12px; height: 12px; }
 
-/* ---------- Dot indicator ---------- */
 .dot {
   display: inline-block;
   width: 10px; height: 10px;
@@ -111,42 +86,31 @@ header .host {
   position: relative;
   flex-shrink: 0;
 }
-.dot.ok    { background: var(--green); box-shadow: 0 0 0 0 var(--green); animation: pulse 2s infinite; }
-.dot.warn  { background: var(--yellow); box-shadow: 0 0 0 0 var(--yellow); animation: pulse-y 2s infinite; }
-.dot.crit  { background: var(--red); box-shadow: 0 0 0 0 var(--red); animation: pulse-r 1.5s infinite; }
-.dot.off   { background: var(--text-faint); }
+.dot.ok   { background: var(--green); animation: pulse 2s infinite; }
+.dot.warn { background: var(--yellow); animation: pulse-y 2s infinite; }
+.dot.crit { background: var(--red); animation: pulse-r 1.5s infinite; }
+.dot.off  { background: var(--text-faint); }
 
-@keyframes pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55); }
-  70%  { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-@keyframes pulse-y {
-  0%   { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.55); }
-  70%  { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
-}
-@keyframes pulse-r {
-  0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
-  70%  { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-}
+@keyframes pulse   { 0%{box-shadow:0 0 0 0 rgba(16,185,129,0.55)} 70%{box-shadow:0 0 0 8px rgba(16,185,129,0)} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0)} }
+@keyframes pulse-y { 0%{box-shadow:0 0 0 0 rgba(245,158,11,0.55)} 70%{box-shadow:0 0 0 8px rgba(245,158,11,0)} 100%{box-shadow:0 0 0 0 rgba(245,158,11,0)} }
+@keyframes pulse-r { 0%{box-shadow:0 0 0 0 rgba(239,68,68,0.6)} 70%{box-shadow:0 0 0 10px rgba(239,68,68,0)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0)} }
 
-/* ---------- Metric cards ---------- */
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
-  margin-bottom: 28px;
+  margin-bottom: 14px;
 }
-@media (max-width: 720px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 380px) { .metrics { grid-template-columns: 1fr; } }
+.metrics.secondary { margin-bottom: 28px; }
+@media (max-width: 780px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px) { .metrics { grid-template-columns: 1fr; } }
 
 .metric {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 18px 18px 16px;
+  position: relative;
 }
 .metric-label {
   font-size: 11px;
@@ -156,14 +120,13 @@ header .host {
   font-weight: 500;
 }
 .metric-value {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 600;
   letter-spacing: -0.02em;
   margin-top: 4px;
   font-variant-numeric: tabular-nums;
-  font-family: var(--font);
 }
-.metric-value .unit { font-size: 16px; color: var(--text-dim); font-weight: 500; margin-left: 2px; }
+.metric-value .unit { font-size: 14px; color: var(--text-dim); font-weight: 500; margin-left: 2px; }
 .metric-sub {
   font-size: 12px;
   color: var(--text-dim);
@@ -176,11 +139,9 @@ header .host {
   background: var(--border);
   border-radius: 999px;
   overflow: hidden;
-  position: relative;
 }
 .bar-fill {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
+  height: 100%;
   background: var(--green);
   border-radius: 999px;
   transition: width 600ms cubic-bezier(.2,.7,.2,1), background 300ms;
@@ -188,7 +149,16 @@ header .host {
 .bar-fill.warn { background: var(--yellow); }
 .bar-fill.crit { background: var(--red); }
 
-/* ---------- Section card ---------- */
+.dual-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.dual-row .down { color: #60a5fa; }
+.dual-row .up   { color: #34d399; }
+.dual-row .arrow { color: var(--text-faint); margin-right: 2px; }
+
 .section {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -200,34 +170,18 @@ header .host {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--border);
 }
-.section-head h2 {
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.005em;
-}
-.section-head .right {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 12px;
-  color: var(--text-dim);
-}
-.section-body {
-  padding: 14px 20px 18px;
-}
-.section-body.empty {
-  color: var(--text-faint);
-  font-size: 13px;
-  text-align: center;
-  padding: 28px 20px;
-}
+.section-head h2 { font-size: 14px; font-weight: 600; }
+.section-head .right { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-dim); }
+.section-body { padding: 14px 20px 18px; }
 
-/* ---------- Fail2ban stats ---------- */
+/* ---- Fail2ban ---- */
 .f2b-stats {
-  display: flex;
-  gap: 32px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
 }
 .f2b-stat .k {
   font-size: 11px;
@@ -242,12 +196,46 @@ header .host {
   margin-top: 2px;
 }
 .f2b-stat .v.alert { color: var(--red); }
-.f2b-ips {
-  margin-top: 14px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+
+.f2b-recent {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
 }
+.f2b-recent-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+}
+.f2b-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.f2b-recent-item {
+  display: grid;
+  grid-template-columns: 10px 160px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+}
+.f2b-recent-item .ip {
+  font-family: var(--mono);
+  color: var(--text);
+}
+.f2b-recent-item .meta {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+.f2b-recent-item .age {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.f2b-ips { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
 .f2b-ip {
   font-family: var(--mono);
   font-size: 12px;
@@ -258,17 +246,14 @@ header .host {
   border-radius: 999px;
 }
 
-/* ---------- Docker table ---------- */
-.dock-list {
-  display: flex;
-  flex-direction: column;
-}
+/* ---- Docker ---- */
+.dock-list { display: flex; flex-direction: column; }
 .dock-row {
   display: grid;
   grid-template-columns: 14px 1fr auto auto;
   gap: 12px;
   align-items: center;
-  padding: 10px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--border);
   font-size: 13px;
 }
@@ -279,17 +264,72 @@ header .host {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
 }
-.dock-health.healthy { color: var(--green); }
-.dock-health.unhealthy { color: var(--red); }
-.dock-uptime {
+.dock-health.running { color: var(--green); }
+.dock-cpu {
   font-family: var(--mono);
   font-size: 12px;
   color: var(--text-faint);
+  min-width: 50px;
+  text-align: right;
 }
 
-/* ---------- N8N ---------- */
+/* ---- Top processes ---- */
+.top-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 720px) { .top-grid { grid-template-columns: 1fr; } }
+.top-col h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.top-row {
+  display: grid;
+  grid-template-columns: 50px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.top-row:last-child { border-bottom: 0; }
+.top-row .num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  font-weight: 600;
+}
+.top-row .cmd {
+  font-family: var(--mono);
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.top-row .user {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+/* ---- Timesync ---- */
+.timesync-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.timesync-row .mono { font-family: var(--mono); }
+.timesync-row .ok { color: var(--green); font-weight: 600; }
+.timesync-row .bad { color: var(--red); font-weight: 600; }
+
+/* ---- N8N ---- */
 .n8n-row {
   display: flex;
   align-items: center;
@@ -301,7 +341,6 @@ header .host {
 .n8n-row .code-ok  { color: var(--green); font-weight: 600; }
 .n8n-row .code-bad { color: var(--red); font-weight: 600; }
 
-/* ---------- Footer ---------- */
 footer {
   margin-top: 40px;
   text-align: center;
@@ -310,20 +349,6 @@ footer {
 }
 footer a { color: var(--text-dim); text-decoration: none; }
 footer a:hover { color: var(--text); }
-
-/* ---------- Skeleton ---------- */
-.skel {
-  display: inline-block;
-  background: linear-gradient(90deg, var(--border) 0%, var(--border-strong) 50%, var(--border) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
-  border-radius: 4px;
-  color: transparent;
-}
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
 
 .hidden { display: none !important; }
 </style>
@@ -343,12 +368,12 @@ footer a:hover { color: var(--text); }
     <span class="dot ok ind" id="banner-dot"></span>
     <div style="flex:1">
       <div class="banner-title" id="banner-title">Loading…</div>
-      <div class="banner-sub" id="banner-sub"><span class="skel">initial snapshot</span></div>
+      <div class="banner-sub" id="banner-sub">initial snapshot</div>
     </div>
     <div class="last-update" id="last-update"></div>
   </div>
 
-  <!-- Metric cards -->
+  <!-- Primary metric cards -->
   <div class="metrics">
     <div class="metric">
       <div class="metric-label">CPU</div>
@@ -376,13 +401,38 @@ footer a:hover { color: var(--text); }
     </div>
   </div>
 
+  <!-- Secondary metrics: swap, network, timesync -->
+  <div class="metrics secondary">
+    <div class="metric">
+      <div class="metric-label">Swap</div>
+      <div class="metric-value"><span id="swap-val">—</span><span class="unit">%</span></div>
+      <div class="metric-sub" id="swap-sub">&nbsp;</div>
+      <div class="bar"><div class="bar-fill" id="swap-bar" style="width:0%"></div></div>
+    </div>
+    <div class="metric" style="grid-column: span 2;">
+      <div class="metric-label">Network</div>
+      <div class="dual-row" style="font-size:22px;font-weight:600;letter-spacing:-0.02em">
+        <span class="down"><span class="arrow">↓</span><span id="net-rx">—</span></span>
+        <span class="up"><span class="arrow">↑</span><span id="net-tx">—</span></span>
+      </div>
+      <div class="metric-sub" id="net-sub">bytes per second, all physical interfaces</div>
+      <div class="bar"><div class="bar-fill" id="net-bar" style="width:0%"></div></div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Time Sync</div>
+      <div class="metric-value" style="font-size:22px" id="ts-val">—</div>
+      <div class="metric-sub" id="ts-sub">&nbsp;</div>
+      <div class="bar"><div class="bar-fill" id="ts-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
   <!-- Fail2Ban -->
   <div class="section">
     <div class="section-head">
       <h2>Fail2Ban</h2>
       <div class="right"><span class="dot off" id="f2b-dot"></span><span id="f2b-status">—</span></div>
     </div>
-    <div class="section-body" id="f2b-body">
+    <div class="section-body">
       <div class="f2b-stats">
         <div class="f2b-stat"><div class="k">Total failed</div><div class="v" id="f2b-failed">—</div></div>
         <div class="f2b-stat"><div class="k">Currently banned</div><div class="v" id="f2b-banned">—</div></div>
@@ -390,6 +440,32 @@ footer a:hover { color: var(--text); }
         <div class="f2b-stat"><div class="k">Jails</div><div class="v" id="f2b-jails">—</div></div>
       </div>
       <div class="f2b-ips" id="f2b-ips"></div>
+      <div class="f2b-recent">
+        <div class="f2b-recent-title">Recent bans</div>
+        <div class="f2b-recent-list" id="f2b-recent-list">
+          <span style="color:var(--text-faint);font-size:12px">No recent bans</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top processes -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Top Processes</h2>
+      <div class="right"><span id="top-age" class="mono">—</span></div>
+    </div>
+    <div class="section-body">
+      <div class="top-grid">
+        <div class="top-col">
+          <h3>By CPU</h3>
+          <div id="top-cpu"></div>
+        </div>
+        <div class="top-col">
+          <h3>By Memory</h3>
+          <div id="top-mem"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -399,7 +475,7 @@ footer a:hover { color: var(--text); }
       <h2>Docker Containers</h2>
       <div class="right"><span class="dot off" id="dock-dot"></span><span id="dock-status">—</span></div>
     </div>
-    <div class="section-body" id="dock-body">
+    <div class="section-body">
       <div class="dock-list" id="dock-list"></div>
     </div>
   </div>
@@ -416,7 +492,7 @@ footer a:hover { color: var(--text); }
   </div>
 
   <footer>
-    <div>Live updates every 30s · <a href="/api/status">JSON</a></div>
+    <div>Live updates every 30s · pull-based (Prometheus) · <a href="/api/status">JSON</a></div>
   </footer>
 </div>
 
@@ -424,20 +500,13 @@ footer a:hover { color: var(--text); }
 (function(){
   const $ = (id) => document.getElementById(id);
 
-  // ----- Helpers -----
-  function cls(pct) {
-    if (pct == null || isNaN(pct)) return 'off';
-    if (pct < 70) return 'ok';
-    if (pct < 90) return 'warn';
-    return 'crit';
-  }
-  function setBar(barEl, pct) {
+  // ---- helpers ----
+  function setBar(barEl, pct, sevClass) {
     if (pct == null || isNaN(pct)) { barEl.style.width = '0%'; return; }
     barEl.style.width = Math.min(100, Math.max(0, pct)) + '%';
     barEl.classList.remove('warn', 'crit');
-    const c = cls(pct);
-    if (c === 'warn') barEl.classList.add('warn');
-    if (c === 'crit') barEl.classList.add('crit');
+    if (sevClass === 'warn') barEl.classList.add('warn');
+    if (sevClass === 'crit') barEl.classList.add('crit');
   }
   function fmtUptime(sec) {
     if (!sec) return '—';
@@ -457,48 +526,120 @@ footer a:hover { color: var(--text); }
     const m = Math.floor(d / 60);
     if (m < 60) return m + 'm ago';
     const h = Math.floor(m / 60);
-    return h + 'h ago';
+    if (h < 24) return h + 'h ago';
+    return Math.floor(h / 24) + 'd ago';
+  }
+  function fmtAgoSec(sec) {
+    if (sec == null) return '';
+    if (sec < 60) return sec + 's ago';
+    const m = Math.floor(sec / 60);
+    if (m < 60) return m + 'm ago';
+    const h = Math.floor(m / 60);
+    if (h < 24) return h + 'h ago';
+    return Math.floor(h / 24) + 'd ago';
+  }
+  function fmtBytes(b) {
+    if (b == null || isNaN(b)) return '—';
+    if (b < 1024) return b + ' B/s';
+    if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB/s';
+    if (b < 1024*1024*1024) return (b/1024/1024).toFixed(2) + ' MB/s';
+    return (b/1024/1024/1024).toFixed(2) + ' GB/s';
+  }
+  function fmtMem(bytes) {
+    if (!bytes) return '—';
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(0)+' KB';
+    if (bytes < 1024*1024*1024) return (bytes/1024/1024).toFixed(0)+' MB';
+    return (bytes/1024/1024/1024).toFixed(2)+' GB';
+  }
+  function fmtDur(sec) {
+    if (sec == null) return '';
+    if (sec < 60) return sec+'s';
+    const m = Math.floor(sec/60);
+    if (m < 60) return m+'m';
+    const h = Math.floor(m/60);
+    if (h < 24) return h+'h';
+    return Math.floor(h/24)+'d';
   }
   function setDot(el, state) {
     el.classList.remove('ok','warn','crit','off');
-    el.classList.add(state);
+    el.classList.add(state || 'off');
   }
 
-  // ----- Render -----
+  // ---- favicon ----
+  function setFavicon(color) {
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='8' fill='${color}'/></svg>`;
+    const href = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    $('favicon').href = href;
+  }
+  const FAVI_COLORS = { ok: '#10b981', warn: '#f59e0b', crit: '#ef4444', off: '#6b7280' };
+  const TITLE_PREFIX = { ok: '● ', warn: '⚠ ', crit: '✗ ', off: '○ ' };
+
+  // ---- render ----
   let lastTs = null;
   function render(d) {
     lastTs = d.timestamp;
+    const sev = d.severity || {};
 
     // Host metrics
     const h = d.host || {};
     if (h.cpu_percent != null) {
       $('cpu-val').textContent = h.cpu_percent.toFixed(1);
       $('cpu-sub').textContent = (h.cpu_count || '?') + ' cores · load ' + (h.load_avg ? h.load_avg.join(' ') : '—');
-      setBar($('cpu-bar'), h.cpu_percent);
+      setBar($('cpu-bar'), h.cpu_percent, sev.cpu);
     }
     if (h.ram) {
       $('ram-val').textContent = h.ram.percent.toFixed(1);
       $('ram-sub').textContent = h.ram.used_gb + ' / ' + h.ram.total_gb + ' GB';
-      setBar($('ram-bar'), h.ram.percent);
+      setBar($('ram-bar'), h.ram.percent, sev.ram);
     }
-    if (h.disk && h.disk.percent != null) {
+    if (h.disk) {
       $('disk-val').textContent = h.disk.percent.toFixed(1);
       $('disk-sub').textContent = h.disk.used_gb + ' / ' + h.disk.total_gb + ' GB';
-      setBar($('disk-bar'), h.disk.percent);
+      setBar($('disk-bar'), h.disk.percent, sev.disk);
     }
     if (h.uptime_seconds) {
       $('uptime-val').textContent = fmtUptime(h.uptime_seconds);
       const la = (h.load_avg && h.load_avg[0]) || 0;
       const cpuCount = h.cpu_count || 1;
       const loadPct = Math.min(100, (la / cpuCount) * 100);
-      $('uptime-sub').textContent = 'load ' + la.toFixed(2) + ' / ' + cpuCount;
-      setBar($('load-bar'), loadPct);
+      $('uptime-sub').textContent = 'load ' + la.toFixed(2) + ' / ' + cpuCount + ' cores';
+      setBar($('load-bar'), loadPct, sev.load);
+    }
+    // Swap
+    if (h.swap && h.swap.total_gb > 0) {
+      $('swap-val').textContent = h.swap.percent.toFixed(1);
+      $('swap-sub').textContent = h.swap.used_gb + ' / ' + h.swap.total_gb + ' GB';
+      setBar($('swap-bar'), h.swap.percent, sev.swap);
+    } else if (h.swap) {
+      $('swap-val').textContent = '0';
+      $('swap-sub').textContent = 'disabled';
+    }
+    // Network
+    if (h.network) {
+      $('net-rx').textContent = fmtBytes(h.network.rx_bytes_s);
+      $('net-tx').textContent = fmtBytes(h.network.tx_bytes_s);
+      // Scale bar: show max of rx/tx against 100 MB/s reference
+      const maxBps = Math.max(h.network.rx_bytes_s || 0, h.network.tx_bytes_s || 0);
+      const netPct = Math.min(100, (maxBps / (100*1024*1024)) * 100);
+      setBar($('net-bar'), netPct, sev.net);
+    }
+    // Timesync
+    const ts = d.timesync || {};
+    if (ts.available) {
+      const off = ts.offset_ms;
+      $('ts-val').textContent = (off >= 0 ? '+' : '') + off.toFixed(1) + ' ms';
+      $('ts-sub').textContent = ts.synchronized ? 'synchronized' : 'drift detected';
+      const absPct = Math.min(100, (Math.abs(off) / 1000) * 100);
+      setBar($('ts-bar'), absPct, sev.timesync);
+    } else {
+      $('ts-val').textContent = 'n/a';
+      $('ts-sub').textContent = 'unavailable';
     }
 
     // Fail2Ban
     const f = d.fail2ban || {};
     if (f.available) {
-      setDot($('f2b-dot'), 'ok');
+      setDot($('f2b-dot'), sev.fail2ban || 'ok');
       $('f2b-status').textContent = 'active';
       $('f2b-failed').textContent = (f.total_failed ?? 0).toLocaleString();
       const cb = f.currently_banned ?? 0;
@@ -506,17 +647,34 @@ footer a:hover { color: var(--text); }
       $('f2b-banned').classList.toggle('alert', cb > 0);
       $('f2b-total-banned').textContent = (f.total_banned ?? 0).toLocaleString();
       $('f2b-jails').textContent = (f.jails && f.jails.length) || 0;
+      // Active banned IPs
       const ipsEl = $('f2b-ips');
       ipsEl.innerHTML = '';
-      const ips = f.banned_ips || [];
-      if (ips.length === 0) {
-        ipsEl.innerHTML = '<span style="color:var(--text-faint);font-size:12px">No IPs currently banned</span>';
+      (f.banned_ips || []).forEach(ip => {
+        const span = document.createElement('span');
+        span.className = 'f2b-ip';
+        span.textContent = ip;
+        ipsEl.appendChild(span);
+      });
+      // Recent bans
+      const recentEl = $('f2b-recent-list');
+      recentEl.innerHTML = '';
+      const recent = (f.recent_bans || []);
+      const nowEpoch = f.now_epoch || Math.floor(Date.now()/1000);
+      if (recent.length === 0) {
+        recentEl.innerHTML = '<span style="color:var(--text-faint);font-size:12px">No recent bans</span>';
       } else {
-        ips.forEach(ip => {
-          const span = document.createElement('span');
-          span.className = 'f2b-ip';
-          span.textContent = ip;
-          ipsEl.appendChild(span);
+        recent.forEach(b => {
+          const age = nowEpoch - b.timeofban;
+          const stillActive = age < b.bantime;
+          const row = document.createElement('div');
+          row.className = 'f2b-recent-item';
+          row.innerHTML =
+            '<span class="dot ' + (stillActive ? 'crit' : 'off') + '"></span>' +
+            '<span class="ip">' + b.ip + '</span>' +
+            '<span class="meta">' + b.jail + ' · ' + fmtDur(b.bantime) + ' ban ' + (stillActive ? '(active)' : '(expired)') + '</span>' +
+            '<span class="age">' + fmtAgoSec(age) + '</span>';
+          recentEl.appendChild(row);
         });
       }
     } else {
@@ -524,68 +682,71 @@ footer a:hover { color: var(--text); }
       $('f2b-status').textContent = 'unavailable';
     }
 
+    // Top processes
+    const top = d.top || {};
+    if (top.available) {
+      $('top-age').textContent = fmtAgoSec(top.age_seconds) || 'fresh';
+      const renderTop = (rows, el, key) => {
+        el.innerHTML = '';
+        (rows || []).forEach((p, i) => {
+          const row = document.createElement('div');
+          row.className = 'top-row';
+          row.innerHTML =
+            '<span class="num">' + (p[key].toFixed(1)) + '%</span>' +
+            '<span class="cmd" title="' + p.cmd.replace(/"/g, '&quot;') + '">' +
+            '<span class="user">' + p.user + '</span>  ' + p.cmd + '</span>' +
+            '<span class="age" style="font-family:var(--mono);font-size:11px;color:var(--text-faint)">pid ' + p.pid + '</span>';
+          el.appendChild(row);
+        });
+      };
+      renderTop(top.by_cpu, $('top-cpu'), 'cpu');
+      renderTop(top.by_mem, $('top-mem'), 'mem');
+    } else {
+      $('top-age').textContent = 'unavailable';
+    }
+
     // Docker
     const dk = d.docker || {};
     if (dk.available) {
-      setDot($('dock-dot'), 'ok');
-      $('dock-status').textContent = dk.running + ' running';
+      setDot($('dock-dot'), sev.docker || 'ok');
+      $('dock-status').textContent = dk.running + '/' + dk.total + ' running';
       const list = $('dock-list');
       list.innerHTML = '';
       (dk.containers || []).forEach(c => {
         const row = document.createElement('div');
         row.className = 'dock-row';
-        let dotClass = 'ok';
-        if (c.state !== 'running') dotClass = 'crit';
-        else if (c.health === 'unhealthy') dotClass = 'crit';
-        else if (c.health === 'starting') dotClass = 'warn';
+        const dotClass = c.state === 'running' ? 'ok' : 'crit';
         row.innerHTML =
           '<span class="dot ' + dotClass + '"></span>' +
           '<span class="dock-name">' + c.name + '</span>' +
-          '<span class="dock-health ' + (c.health === 'healthy' ? 'healthy' : (c.health === 'unhealthy' ? 'unhealthy' : '')) + '">' +
-          (c.health !== '-' ? c.health : c.state) + '</span>' +
-          '<span class="dock-uptime">' + (c.uptime || '') + '</span>';
+          '<span class="dock-health ' + c.state + '">' + c.state + '</span>' +
+          '<span class="dock-cpu">' + (c.cpu_percent?.toFixed(1) || '0.0') + '% · ' + fmtMem(c.mem_bytes) + '</span>';
         list.appendChild(row);
       });
-      if ((dk.containers || []).length === 0) {
-        list.innerHTML = '<div style="color:var(--text-faint);font-size:13px;text-align:center;padding:12px 0">No containers running</div>';
-      }
     } else {
       setDot($('dock-dot'), 'crit');
       $('dock-status').textContent = 'unavailable';
-      $('dock-list').innerHTML = '<div style="color:var(--text-faint);font-size:13px;text-align:center;padding:12px 0">Docker socket not accessible</div>';
     }
 
     // N8N
     const n = d.n8n || {};
     if (n.reachable) {
-      setDot($('n8n-dot'), 'ok');
+      setDot($('n8n-dot'), sev.n8n || 'ok');
       $('n8n-status').textContent = 'online';
       $('n8n-row').innerHTML =
         '<span class="mono code-ok">' + n.status_code + '</span>' +
-        '<span>·</span>' +
-        '<span class="mono">' + n.latency_ms + 'ms</span>' +
-        '<span>·</span>' +
-        '<span class="mono" style="color:var(--text-faint)">' + n.url + '</span>';
+        '<span>·</span><span class="mono">' + n.latency_ms + 'ms</span>' +
+        '<span>·</span><span class="mono" style="color:var(--text-faint)">' + n.url + '</span>';
     } else {
       setDot($('n8n-dot'), 'crit');
       $('n8n-status').textContent = 'offline';
       $('n8n-row').innerHTML =
         '<span class="mono code-bad">' + (n.status_code || 'ERR') + '</span>' +
-        '<span>·</span>' +
-        '<span style="color:var(--text-faint)">' + (n.error || 'unreachable') + '</span>';
+        '<span>·</span><span style="color:var(--text-faint)">' + (n.error || 'unreachable') + '</span>';
     }
 
-    // Overall banner — aggregate worst state
-    let worst = 'ok';
-    const bump = (s) => { if (s === 'crit') worst = 'crit'; else if (s === 'warn' && worst !== 'crit') worst = 'warn'; };
-    if (h.cpu_percent != null) bump(cls(h.cpu_percent));
-    if (h.ram && h.ram.percent != null) bump(cls(h.ram.percent));
-    if (h.disk && h.disk.percent != null) bump(cls(h.disk.percent));
-    if (dk.available === false) bump('warn');
-    if ((dk.containers || []).some(c => c.health === 'unhealthy' || c.state !== 'running')) bump('crit');
-    if (f.available === false) bump('warn');
-    if (n.reachable === false) bump('crit');
-
+    // Overall banner
+    const worst = sev.overall || 'ok';
     const banner = $('banner');
     banner.classList.remove('ok','warn','crit');
     banner.classList.add(worst);
@@ -595,9 +756,14 @@ footer a:hover { color: var(--text); }
       worst === 'warn' ? 'Some systems degraded'    :
                          'Systems reporting errors';
     $('banner-sub').textContent =
-      (dk.available ? dk.running + ' containers · ' : '') +
-      (f.available ? (f.currently_banned ?? 0) + ' banned · ' : '') +
+      (dk.available ? dk.running + '/' + dk.total + ' containers · ' : '') +
+      (f.available ? (f.currently_banned ?? 0) + ' active bans · ' : '') +
       (n.reachable ? 'n8n online' : 'n8n offline');
+
+    // Favicon + title
+    setFavicon(FAVI_COLORS[worst] || FAVI_COLORS.ok);
+    document.title = TITLE_PREFIX[worst] + 'Server Status · statusmdobner';
+
     updateLastSeen();
   }
 
@@ -606,7 +772,7 @@ footer a:hover { color: var(--text); }
   }
   setInterval(updateLastSeen, 5000);
 
-  // ----- WebSocket with auto-reconnect -----
+  // ---- WebSocket with auto-reconnect ----
   let ws = null;
   let reconnectDelay = 1000;
   function connect() {
@@ -627,8 +793,6 @@ footer a:hover { color: var(--text); }
     ws.onerror = () => { try { ws.close(); } catch(e) {} };
   }
   connect();
-
-  // Fallback: fetch immediate snapshot
   fetch('/api/status').then(r => r.json()).then(render).catch(()=>{});
 })();
 </script>

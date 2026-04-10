@@ -1,0 +1,66 @@
+# Thresholds & alerting config for status-page.
+# Severity: ok < warn < crit
+# "alert" entries are consumed by future email-alerter (not active yet in v2).
+
+host:
+  cpu_percent:
+    warn: 70
+    crit: 90
+  ram_percent:
+    warn: 80
+    crit: 95
+  disk_percent:
+    warn: 80
+    crit: 92
+  swap_percent:
+    warn: 40
+    crit: 75
+  load_per_core:        # load1 / cpu_count
+    warn: 1.5
+    crit: 3.0
+  network_rx_mb_s:
+    warn: 80
+    crit: 120
+  network_tx_mb_s:
+    warn: 80
+    crit: 120
+
+timesync:
+  offset_ms_abs:
+    warn: 200
+    crit: 1000
+  max_sync_age_minutes:
+    warn: 60
+    crit: 240
+
+fail2ban:
+  currently_banned:
+    warn: 5
+    crit: 20
+  recent_bans_24h:
+    warn: 10
+    crit: 50
+
+docker:
+  unhealthy_containers:
+    warn: 1
+    crit: 2
+  expected_min_running: 5
+
+n8n:
+  latency_ms:
+    warn: 1500
+    crit: 5000
+
+# Alerting destinations (currently INACTIVE — placeholder for v2.1 email alerter)
+alerts:
+  enabled: false
+  cooldown_minutes: 15
+  channels:
+    email:
+      enabled: false
+      smtp_host: ""
+      smtp_port: 587
+      smtp_user: ""
+      from_addr: ""
+      to_addr: ""
