@@ -18,6 +18,16 @@ services:
       - "8000"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.status.rule=Host(`statusmdobner.duckdns.org`)"
-      - "traefik.http.routers.status.entrypoints=http"
-      - "traefik.http.services.status.loadbalancer.server.port=8000"
+      # HTTP: redirect to HTTPS
+      - "traefik.http.routers.status-http.rule=Host(`statusmdobner.duckdns.org`)"
+      - "traefik.http.routers.status-http.entrypoints=http"
+      - "traefik.http.routers.status-http.middlewares=status-https-redirect"
+      - "traefik.http.middlewares.status-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.status-https-redirect.redirectscheme.permanent=true"
+      # HTTPS with Let's Encrypt
+      - "traefik.http.routers.status-https.rule=Host(`statusmdobner.duckdns.org`)"
+      - "traefik.http.routers.status-https.entrypoints=https"
+      - "traefik.http.routers.status-https.tls=true"
+      - "traefik.http.routers.status-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.status-https.service=status-svc"
+      - "traefik.http.services.status-svc.loadbalancer.server.port=8000"
