@@ -323,7 +323,7 @@ class TelegramBot:
                 return False
             return True
         except Exception as e:
-            log.error("Telegram send failed: %s", e)
+            log.error("Telegram send failed: %s: %r", type(e).__name__, str(e))
             return False
 
     async def get_updates(self) -> list[dict]:
@@ -342,7 +342,7 @@ class TelegramBot:
                 self._offset = updates[-1]["update_id"] + 1
             return updates
         except Exception as e:
-            log.warning("getUpdates error: %s", e)
+            log.warning("getUpdates error: %s: %r", type(e).__name__, str(e))
             return []
 
     async def close(self) -> None:
