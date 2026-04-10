@@ -23,6 +23,7 @@
   --red: #ef4444;
   --red-bg: rgba(239, 68, 68, 0.1);
   --blue: #3b82f6;
+  --purple: #8b5cf6;
   --radius: 12px;
   --radius-sm: 8px;
   --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
@@ -48,6 +49,7 @@ html, body {
   padding: 32px 20px 80px;
 }
 
+/* ── Header ─────────────────────────────────────────── */
 header {
   display: flex;
   align-items: center;
@@ -61,23 +63,7 @@ header h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
 header .host { font-family: var(--mono); font-size: 12px; color: var(--text-faint); }
 .last-update { font-size: 12px; color: var(--text-faint); font-family: var(--mono); }
 
-.banner {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 18px 22px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg-elev);
-  margin-bottom: 28px;
-}
-.banner.ok { border-color: rgba(16, 185, 129, 0.3); background: linear-gradient(180deg, var(--green-bg), transparent); }
-.banner.warn { border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(180deg, var(--yellow-bg), transparent); }
-.banner.crit { border-color: rgba(239, 68, 68, 0.3); background: linear-gradient(180deg, var(--red-bg), transparent); }
-.banner-title { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
-.banner-sub { font-size: 13px; color: var(--text-dim); }
-.banner .ind { width: 12px; height: 12px; }
-
+/* ── Dots ────────────────────────────────────────────── */
 .dot {
   display: inline-block;
   width: 10px; height: 10px;
@@ -95,70 +81,25 @@ header .host { font-family: var(--mono); font-size: 12px; color: var(--text-fain
 @keyframes pulse-y { 0%{box-shadow:0 0 0 0 rgba(245,158,11,0.55)} 70%{box-shadow:0 0 0 8px rgba(245,158,11,0)} 100%{box-shadow:0 0 0 0 rgba(245,158,11,0)} }
 @keyframes pulse-r { 0%{box-shadow:0 0 0 0 rgba(239,68,68,0.6)} 70%{box-shadow:0 0 0 10px rgba(239,68,68,0)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0)} }
 
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+/* ── Banner ──────────────────────────────────────────── */
+.banner {
+  display: flex;
+  align-items: center;
   gap: 14px;
-  margin-bottom: 14px;
-}
-.metrics.secondary { margin-bottom: 28px; }
-@media (max-width: 780px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 400px) { .metrics { grid-template-columns: 1fr; } }
-
-.metric {
-  background: var(--bg-card);
+  padding: 18px 22px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 18px 18px 16px;
-  position: relative;
+  background: var(--bg-elev);
+  margin-bottom: 28px;
 }
-.metric-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-faint);
-  font-weight: 500;
-}
-.metric-value {
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  margin-top: 4px;
-  font-variant-numeric: tabular-nums;
-}
-.metric-value .unit { font-size: 14px; color: var(--text-dim); font-weight: 500; margin-left: 2px; }
-.metric-sub {
-  font-size: 12px;
-  color: var(--text-dim);
-  margin-top: 2px;
-  font-variant-numeric: tabular-nums;
-}
-.bar {
-  margin-top: 12px;
-  height: 5px;
-  background: var(--border);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.bar-fill {
-  height: 100%;
-  background: var(--green);
-  border-radius: 999px;
-  transition: width 600ms cubic-bezier(.2,.7,.2,1), background 300ms;
-}
-.bar-fill.warn { background: var(--yellow); }
-.bar-fill.crit { background: var(--red); }
+.banner.ok   { border-color: rgba(16, 185, 129, 0.3); background: linear-gradient(180deg, var(--green-bg), transparent); }
+.banner.warn { border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(180deg, var(--yellow-bg), transparent); }
+.banner.crit { border-color: rgba(239, 68, 68, 0.3); background: linear-gradient(180deg, var(--red-bg), transparent); }
+.banner-dot { width: 14px; height: 14px; flex-shrink: 0; }
+.banner-title { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.banner-sub { font-size: 13px; color: var(--text-dim); margin-top: 1px; }
 
-.dual-row {
-  display: flex;
-  gap: 14px;
-  margin-top: 10px;
-  font-variant-numeric: tabular-nums;
-}
-.dual-row .down { color: #60a5fa; }
-.dual-row .up   { color: #34d399; }
-.dual-row .arrow { color: var(--text-faint); margin-right: 2px; }
-
+/* ── Section wrapper ─────────────────────────────────── */
 .section {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -172,17 +113,111 @@ header .host { font-family: var(--mono); font-size: 12px; color: var(--text-fain
   justify-content: space-between;
   padding: 14px 20px;
   border-bottom: 1px solid var(--border);
+  cursor: default;
 }
-.section-head h2 { font-size: 14px; font-weight: 600; }
+.section-head.collapsible { cursor: pointer; user-select: none; }
+.section-head.collapsible:hover { background: rgba(255,255,255,0.02); }
+.section-head h2 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 .section-head .right { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-dim); }
 .section-body { padding: 14px 20px 18px; }
+.section-body.hidden { display: none; }
+.chevron { transition: transform 200ms; display: inline-block; }
+.chevron.open { transform: rotate(180deg); }
 
-/* ---- Fail2ban ---- */
+/* ── Service cards grid ──────────────────────────────── */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (max-width: 720px) { .services-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 420px) { .services-grid { grid-template-columns: 1fr; } }
+
+.svc-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.svc-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.svc-name { font-size: 13px; font-weight: 600; }
+.svc-software { font-size: 11px; color: var(--text-faint); margin-top: 1px; }
+.svc-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+.svc-uptime { font-size: 11px; color: var(--text-faint); font-family: var(--mono); }
+.svc-health {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.svc-health.healthy { color: var(--green); }
+.svc-health.unhealthy { color: var(--red); }
+
+/* ── Metrics strip ───────────────────────────────────── */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.metrics.secondary { margin-bottom: 0; }
+@media (max-width: 780px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px) { .metrics { grid-template-columns: 1fr; } }
+
+.metric {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px 14px;
+}
+.metric-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+.metric-value {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.metric-value .unit { font-size: 13px; color: var(--text-dim); font-weight: 500; margin-left: 2px; }
+.metric-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.bar { margin-top: 10px; height: 4px; background: var(--border); border-radius: 999px; overflow: hidden; }
+.bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 999px;
+  transition: width 600ms cubic-bezier(.2,.7,.2,1), background 300ms;
+}
+.bar-fill.warn { background: var(--yellow); }
+.bar-fill.crit { background: var(--red); }
+.dual-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+.dual-row .down { color: #60a5fa; }
+.dual-row .up   { color: #34d399; }
+.dual-row .arrow { color: var(--text-faint); margin-right: 2px; }
+
+/* ── Security / Fail2Ban ─────────────────────────────── */
 .f2b-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+  margin-bottom: 18px;
 }
+@media (max-width: 520px) { .f2b-stats { grid-template-columns: repeat(2, 1fr); } }
 .f2b-stat .k {
   font-size: 11px;
   text-transform: uppercase;
@@ -197,68 +232,76 @@ header .host { font-family: var(--mono); font-size: 12px; color: var(--text-fain
 }
 .f2b-stat .v.alert { color: var(--red); }
 
-.f2b-recent {
-  margin-top: 16px;
-  border-top: 1px solid var(--border);
-  padding-top: 14px;
-}
-.f2b-recent-title {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-faint);
-  margin-bottom: 8px;
-}
-.f2b-recent-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.f2b-recent-item {
+.f2b-events { display: flex; flex-direction: column; gap: 6px; }
+.f2b-event {
   display: grid;
-  grid-template-columns: 10px 160px 1fr auto;
+  grid-template-columns: 1.4em 1fr auto;
   gap: 10px;
   align-items: center;
-  font-size: 13px;
+  padding: 8px 12px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
 }
-.f2b-recent-item .ip {
-  font-family: var(--mono);
-  color: var(--text);
+.f2b-event .flag { font-size: 16px; line-height: 1; }
+.f2b-event .info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.f2b-event .ip { font-family: var(--mono); font-size: 12px; font-weight: 500; }
+.f2b-event .detail { color: var(--text-faint); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.f2b-event .age { font-family: var(--mono); font-size: 11px; color: var(--text-faint); white-space: nowrap; }
+
+/* ── Backup / Restic ─────────────────────────────────── */
+.backup-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
 }
-.f2b-recent-item .meta {
+.backup-icon { font-size: 22px; line-height: 1; }
+.backup-info { display: flex; flex-direction: column; gap: 3px; }
+.backup-title { font-size: 14px; font-weight: 600; }
+.backup-meta { font-size: 12px; color: var(--text-dim); }
+.backup-badge {
   font-size: 11px;
-  color: var(--text-faint);
-}
-.f2b-recent-item .age {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--text-dim);
-}
-
-.f2b-ips { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
-.f2b-ip {
-  font-family: var(--mono);
-  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
   padding: 4px 10px;
-  background: var(--red-bg);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: #fca5a5;
   border-radius: 999px;
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid rgba(16,185,129,0.3);
 }
+.backup-badge.warn { background: var(--yellow-bg); color: var(--yellow); border-color: rgba(245,158,11,0.3); }
+.backup-badge.crit { background: var(--red-bg); color: var(--red); border-color: rgba(239,68,68,0.3); }
+.backup-badge.off { background: transparent; color: var(--text-faint); border-color: var(--border); }
 
-/* ---- Docker ---- */
+.backup-details {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media (max-width: 640px) { .backup-details { grid-template-columns: repeat(2, 1fr); } }
+.backup-detail .dk { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-faint); }
+.backup-detail .dv { font-size: 14px; font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+/* ── Docker / Infrastructure containers ─────────────── */
 .dock-list { display: flex; flex-direction: column; }
 .dock-row {
   display: grid;
-  grid-template-columns: 14px 1fr auto auto;
+  grid-template-columns: 10px 1fr auto auto;
   gap: 12px;
   align-items: center;
-  padding: 8px 0;
+  padding: 9px 0;
   border-bottom: 1px solid var(--border);
   font-size: 13px;
 }
 .dock-row:last-child { border-bottom: 0; }
 .dock-name { color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dock-sub { font-size: 11px; color: var(--text-faint); }
 .dock-health {
   font-size: 11px;
   text-transform: uppercase;
@@ -266,28 +309,14 @@ header .host { font-family: var(--mono); font-size: 12px; color: var(--text-fain
   color: var(--text-dim);
 }
 .dock-health.running { color: var(--green); }
-.dock-cpu {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--text-faint);
-  min-width: 50px;
-  text-align: right;
-}
+.dock-uptime { font-family: var(--mono); font-size: 11px; color: var(--text-faint); white-space: nowrap; }
 
-/* ---- Top processes ---- */
-.top-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
+/* ── Top processes ───────────────────────────────────── */
+.top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 @media (max-width: 720px) { .top-grid { grid-template-columns: 1fr; } }
 .top-col h3 {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-faint);
-  margin-bottom: 8px;
-  font-weight: 500;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-faint); margin-bottom: 8px; font-weight: 500;
 }
 .top-row {
   display: grid;
@@ -299,58 +328,45 @@ header .host { font-family: var(--mono); font-size: 12px; color: var(--text-fain
   font-size: 12px;
 }
 .top-row:last-child { border-bottom: 0; }
-.top-row .num {
-  font-family: var(--mono);
-  font-variant-numeric: tabular-nums;
-  color: var(--text);
-  font-weight: 600;
-}
-.top-row .cmd {
-  font-family: var(--mono);
-  color: var(--text-dim);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.top-row .user {
-  font-size: 11px;
-  color: var(--text-faint);
-}
+.top-pct { font-family: var(--mono); font-weight: 600; color: var(--text); }
+.top-name { color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.top-val { font-family: var(--mono); color: var(--text-faint); white-space: nowrap; }
 
-/* ---- Timesync ---- */
-.timesync-row {
-  display: flex;
+/* ── Badge ───────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
   align-items: center;
-  gap: 14px;
-  font-size: 13px;
-  color: var(--text-dim);
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 999px;
 }
-.timesync-row .mono { font-family: var(--mono); }
-.timesync-row .ok { color: var(--green); font-weight: 600; }
-.timesync-row .bad { color: var(--red); font-weight: 600; }
+.badge.ok   { background: var(--green-bg); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+.badge.warn { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(245,158,11,0.25); }
+.badge.crit { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+.badge.off  { background: transparent; color: var(--text-faint); border: 1px solid var(--border); }
 
-/* ---- N8N ---- */
+/* ── n8n quick stat ──────────────────────────────────── */
 .n8n-row {
   display: flex;
   align-items: center;
   gap: 12px;
   font-size: 13px;
-  color: var(--text-dim);
 }
-.n8n-row .mono { font-family: var(--mono); }
-.n8n-row .code-ok  { color: var(--green); font-weight: 600; }
-.n8n-row .code-bad { color: var(--red); font-weight: 600; }
+.n8n-row .n8n-url { font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+.n8n-row .n8n-latency { font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
 
-footer {
-  margin-top: 40px;
-  text-align: center;
-  color: var(--text-faint);
-  font-size: 12px;
-}
-footer a { color: var(--text-dim); text-decoration: none; }
-footer a:hover { color: var(--text); }
-
-.hidden { display: none !important; }
+/* ── Util ────────────────────────────────────────────── */
+.tag-ok   { color: var(--green); }
+.tag-warn { color: var(--yellow); }
+.tag-crit { color: var(--red); }
+.tag-off  { color: var(--text-faint); }
+.dim { color: var(--text-dim); }
+.faint { color: var(--text-faint); }
+.mono { font-family: var(--mono); }
 </style>
 </head>
 <body>
@@ -358,447 +374,465 @@ footer a:hover { color: var(--text); }
 
   <header>
     <div class="brand">
-      <span class="dot ok" id="conn-dot"></span>
-      <h1>Server Status</h1>
+      <div class="dot off" id="hdr-dot"></div>
+      <div>
+        <h1>Server Status</h1>
+        <div class="host">161.97.132.188</div>
+      </div>
     </div>
-    <div class="host" id="host-domain">statusmdobner.duckdns.org</div>
+    <div class="last-update" id="last-update">connecting…</div>
   </header>
 
-  <div class="banner ok" id="banner">
-    <span class="dot ok ind" id="banner-dot"></span>
-    <div style="flex:1">
-      <div class="banner-title" id="banner-title">Loading…</div>
-      <div class="banner-sub" id="banner-sub">initial snapshot</div>
-    </div>
-    <div class="last-update" id="last-update"></div>
-  </div>
-
-  <!-- Primary metric cards -->
-  <div class="metrics">
-    <div class="metric">
-      <div class="metric-label">CPU</div>
-      <div class="metric-value"><span id="cpu-val">—</span><span class="unit">%</span></div>
-      <div class="metric-sub" id="cpu-sub">&nbsp;</div>
-      <div class="bar"><div class="bar-fill" id="cpu-bar" style="width:0%"></div></div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Memory</div>
-      <div class="metric-value"><span id="ram-val">—</span><span class="unit">%</span></div>
-      <div class="metric-sub" id="ram-sub">&nbsp;</div>
-      <div class="bar"><div class="bar-fill" id="ram-bar" style="width:0%"></div></div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Disk</div>
-      <div class="metric-value"><span id="disk-val">—</span><span class="unit">%</span></div>
-      <div class="metric-sub" id="disk-sub">&nbsp;</div>
-      <div class="bar"><div class="bar-fill" id="disk-bar" style="width:0%"></div></div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Uptime</div>
-      <div class="metric-value" id="uptime-val">—</div>
-      <div class="metric-sub" id="uptime-sub">&nbsp;</div>
-      <div class="bar"><div class="bar-fill" id="load-bar" style="width:0%"></div></div>
+  <!-- Overall banner -->
+  <div class="banner" id="banner">
+    <div class="dot off banner-dot" id="banner-dot"></div>
+    <div>
+      <div class="banner-title" id="banner-title">Connecting…</div>
+      <div class="banner-sub" id="banner-sub">Fetching status data</div>
     </div>
   </div>
 
-  <!-- Secondary metrics: swap, network, timesync -->
-  <div class="metrics secondary">
-    <div class="metric">
-      <div class="metric-label">Swap</div>
-      <div class="metric-value"><span id="swap-val">—</span><span class="unit">%</span></div>
-      <div class="metric-sub" id="swap-sub">&nbsp;</div>
-      <div class="bar"><div class="bar-fill" id="swap-bar" style="width:0%"></div></div>
-    </div>
-    <div class="metric" style="grid-column: span 2;">
-      <div class="metric-label">Network</div>
-      <div class="dual-row" style="font-size:22px;font-weight:600;letter-spacing:-0.02em">
-        <span class="down"><span class="arrow">↓</span><span id="net-rx">—</span></span>
-        <span class="up"><span class="arrow">↑</span><span id="net-tx">—</span></span>
-      </div>
-      <div class="metric-sub" id="net-sub">bytes per second, all physical interfaces</div>
-      <div class="bar"><div class="bar-fill" id="net-bar" style="width:0%"></div></div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Time Sync</div>
-      <div class="metric-value" style="font-size:22px" id="ts-val">—</div>
-      <div class="metric-sub" id="ts-sub">&nbsp;</div>
-      <div class="bar"><div class="bar-fill" id="ts-bar" style="width:0%"></div></div>
-    </div>
-  </div>
-
-  <!-- Fail2Ban -->
-  <div class="section">
+  <!-- ── Services ───────────────────────────────────────── -->
+  <div class="section" id="sec-services">
     <div class="section-head">
-      <h2>Fail2Ban</h2>
-      <div class="right"><span class="dot off" id="f2b-dot"></span><span id="f2b-status">—</span></div>
+      <h2>Services</h2>
+      <div class="right" id="svc-summary"></div>
     </div>
     <div class="section-body">
-      <div class="f2b-stats">
-        <div class="f2b-stat"><div class="k">Total failed</div><div class="v" id="f2b-failed">—</div></div>
-        <div class="f2b-stat"><div class="k">Currently banned</div><div class="v" id="f2b-banned">—</div></div>
-        <div class="f2b-stat"><div class="k">Total banned</div><div class="v" id="f2b-total-banned">—</div></div>
-        <div class="f2b-stat"><div class="k">Jails</div><div class="v" id="f2b-jails">—</div></div>
+      <div class="services-grid" id="svc-grid">
+        <div class="dim" style="font-size:13px">Loading…</div>
       </div>
-      <div class="f2b-ips" id="f2b-ips"></div>
-      <div class="f2b-recent">
-        <div class="f2b-recent-title">Recent bans</div>
-        <div class="f2b-recent-list" id="f2b-recent-list">
-          <span style="color:var(--text-faint);font-size:12px">No recent bans</span>
+    </div>
+  </div>
+
+  <!-- ── Security ───────────────────────────────────────── -->
+  <div class="section" id="sec-security">
+    <div class="section-head">
+      <h2>Security <span class="dot off" id="f2b-dot" style="margin-left:4px"></span></h2>
+      <div class="right" id="f2b-summary"></div>
+    </div>
+    <div class="section-body">
+      <div class="f2b-stats" id="f2b-stats"></div>
+      <div id="f2b-events-wrap">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin-bottom:8px;">Recent Bans</div>
+        <div class="f2b-events" id="f2b-events"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Backup ─────────────────────────────────────────── -->
+  <div class="section" id="sec-backup">
+    <div class="section-head">
+      <h2>Backup</h2>
+      <div class="right" id="backup-summary"></div>
+    </div>
+    <div class="section-body">
+      <div class="backup-row">
+        <div class="backup-icon">💾</div>
+        <div class="backup-info">
+          <div class="backup-title">Restic Backup</div>
+          <div class="backup-meta" id="backup-meta">—</div>
         </div>
+        <div class="backup-badge off" id="backup-badge">—</div>
       </div>
+      <div class="backup-details" id="backup-details"></div>
     </div>
   </div>
 
-  <!-- Top processes -->
+  <!-- ── Metrics ────────────────────────────────────────── -->
   <div class="section">
     <div class="section-head">
-      <h2>Top Processes</h2>
-      <div class="right"><span id="top-age" class="mono">—</span></div>
+      <h2>Metrics</h2>
+      <div class="right" id="uptime-display"></div>
     </div>
-    <div class="section-body">
-      <div class="top-grid">
-        <div class="top-col">
-          <h3>By CPU</h3>
-          <div id="top-cpu"></div>
-        </div>
-        <div class="top-col">
-          <h3>By Memory</h3>
-          <div id="top-mem"></div>
-        </div>
+    <div class="section-body" style="padding-bottom:14px">
+      <div class="metrics" id="metrics-primary"></div>
+      <div class="metrics secondary" id="metrics-secondary"></div>
+    </div>
+  </div>
+
+  <!-- ── Technical (collapsible) ───────────────────────── -->
+  <div class="section">
+    <div class="section-head collapsible" id="tech-head" onclick="toggleSection('tech-body','tech-chevron')">
+      <h2>Technical <span class="chevron" id="tech-chevron">▾</span></h2>
+      <div class="right" id="tech-summary"></div>
+    </div>
+    <div class="section-body hidden" id="tech-body">
+
+      <!-- n8n -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin-bottom:8px;">Workflow Engine</div>
+        <div class="n8n-row" id="n8n-row">—</div>
       </div>
+
+      <!-- Infrastructure containers -->
+      <div id="infra-wrap" style="margin-bottom:18px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin-bottom:8px;">Infrastructure</div>
+        <div class="dock-list" id="infra-list"></div>
+      </div>
+
+      <!-- Top processes -->
+      <div id="top-wrap">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin-bottom:8px;">Top Processes</div>
+        <div class="top-grid" id="top-grid"></div>
+      </div>
+
     </div>
   </div>
 
-  <!-- Docker -->
-  <div class="section">
-    <div class="section-head">
-      <h2>Docker Containers</h2>
-      <div class="right"><span class="dot off" id="dock-dot"></span><span id="dock-status">—</span></div>
-    </div>
-    <div class="section-body">
-      <div class="dock-list" id="dock-list"></div>
-    </div>
-  </div>
-
-  <!-- N8N -->
-  <div class="section">
-    <div class="section-head">
-      <h2>n8n</h2>
-      <div class="right"><span class="dot off" id="n8n-dot"></span><span id="n8n-status">—</span></div>
-    </div>
-    <div class="section-body">
-      <div class="n8n-row" id="n8n-row">—</div>
-    </div>
-  </div>
-
-  <footer>
-    <div>Live updates every 30s · pull-based (Prometheus) · <a href="/api/status">JSON</a></div>
-  </footer>
-</div>
+</div><!-- /page -->
 
 <script>
-(function(){
-  const $ = (id) => document.getElementById(id);
+// ── Helpers ────────────────────────────────────────────────────
 
-  // ---- helpers ----
-  function setBar(barEl, pct, sevClass) {
-    if (pct == null || isNaN(pct)) { barEl.style.width = '0%'; return; }
-    barEl.style.width = Math.min(100, Math.max(0, pct)) + '%';
-    barEl.classList.remove('warn', 'crit');
-    if (sevClass === 'warn') barEl.classList.add('warn');
-    if (sevClass === 'crit') barEl.classList.add('crit');
+function sev2color(s) {
+  return s === 'ok' ? 'var(--green)' : s === 'warn' ? 'var(--yellow)' : s === 'crit' ? 'var(--red)' : 'var(--text-faint)';
+}
+
+function setDot(el, sev) {
+  el.className = 'dot ' + (sev || 'off');
+}
+
+function fmtBytes(b) {
+  if (b == null) return '—';
+  if (b < 1024) return b + ' B/s';
+  if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB/s';
+  return (b / 1024 / 1024).toFixed(1) + ' MB/s';
+}
+
+function fmtUptime(s) {
+  if (!s) return '—';
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+function timeAgo(epoch) {
+  if (!epoch) return '—';
+  const diff = Math.floor(Date.now() / 1000) - epoch;
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  return `${Math.floor(diff/86400)}d ago`;
+}
+
+function barClass(sev) { return sev === 'crit' ? 'crit' : sev === 'warn' ? 'warn' : ''; }
+
+function metricCard(label, value, unit, sub, barPct, barSev) {
+  const bc = barClass(barSev);
+  const barHtml = barPct != null ? `<div class="bar"><div class="bar-fill ${bc}" style="width:${Math.min(100,barPct)}%"></div></div>` : '';
+  return `<div class="metric">
+    <div class="metric-label">${label}</div>
+    <div class="metric-value">${value}<span class="unit">${unit}</span></div>
+    ${sub ? `<div class="metric-sub">${sub}</div>` : ''}
+    ${barHtml}
+  </div>`;
+}
+
+function toggleSection(bodyId, chevronId) {
+  const b = document.getElementById(bodyId);
+  const c = document.getElementById(chevronId);
+  if (b.classList.contains('hidden')) {
+    b.classList.remove('hidden');
+    c.classList.add('open');
+  } else {
+    b.classList.add('hidden');
+    c.classList.remove('open');
   }
-  function fmtUptime(sec) {
-    if (!sec) return '—';
-    const d = Math.floor(sec / 86400);
-    const h = Math.floor((sec % 86400) / 3600);
-    const m = Math.floor((sec % 3600) / 60);
-    if (d > 0) return d + 'd ' + h + 'h';
-    if (h > 0) return h + 'h ' + m + 'm';
-    return m + 'm';
-  }
-  function fmtAgo(iso) {
-    if (!iso) return '';
-    const t = new Date(iso);
-    const d = Math.round((Date.now() - t.getTime()) / 1000);
-    if (d < 5) return 'just now';
-    if (d < 60) return d + 's ago';
-    const m = Math.floor(d / 60);
-    if (m < 60) return m + 'm ago';
-    const h = Math.floor(m / 60);
-    if (h < 24) return h + 'h ago';
-    return Math.floor(h / 24) + 'd ago';
-  }
-  function fmtAgoSec(sec) {
-    if (sec == null) return '';
-    if (sec < 60) return sec + 's ago';
-    const m = Math.floor(sec / 60);
-    if (m < 60) return m + 'm ago';
-    const h = Math.floor(m / 60);
-    if (h < 24) return h + 'h ago';
-    return Math.floor(h / 24) + 'd ago';
-  }
-  function fmtBytes(b) {
-    if (b == null || isNaN(b)) return '—';
-    if (b < 1024) return b + ' B/s';
-    if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB/s';
-    if (b < 1024*1024*1024) return (b/1024/1024).toFixed(2) + ' MB/s';
-    return (b/1024/1024/1024).toFixed(2) + ' GB/s';
-  }
-  function fmtMem(bytes) {
-    if (!bytes) return '—';
-    if (bytes < 1024*1024) return (bytes/1024).toFixed(0)+' KB';
-    if (bytes < 1024*1024*1024) return (bytes/1024/1024).toFixed(0)+' MB';
-    return (bytes/1024/1024/1024).toFixed(2)+' GB';
-  }
-  function fmtDur(sec) {
-    if (sec == null) return '';
-    if (sec < 60) return sec+'s';
-    const m = Math.floor(sec/60);
-    if (m < 60) return m+'m';
-    const h = Math.floor(m/60);
-    if (h < 24) return h+'h';
-    return Math.floor(h/24)+'d';
-  }
-  function setDot(el, state) {
-    el.classList.remove('ok','warn','crit','off');
-    el.classList.add(state || 'off');
-  }
+}
 
-  // ---- favicon ----
-  function setFavicon(color) {
-    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='8' fill='${color}'/></svg>`;
-    const href = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-    $('favicon').href = href;
-  }
-  const FAVI_COLORS = { ok: '#10b981', warn: '#f59e0b', crit: '#ef4444', off: '#6b7280' };
-  const TITLE_PREFIX = { ok: '● ', warn: '⚠ ', crit: '✗ ', off: '○ ' };
+// ── Render ─────────────────────────────────────────────────────
 
-  // ---- render ----
-  let lastTs = null;
-  function render(d) {
-    lastTs = d.timestamp;
-    const sev = d.severity || {};
+function render(d) {
+  const sev = d.severity || {};
+  const overall = sev.overall || 'off';
 
-    // Host metrics
-    const h = d.host || {};
-    if (h.cpu_percent != null) {
-      $('cpu-val').textContent = h.cpu_percent.toFixed(1);
-      $('cpu-sub').textContent = (h.cpu_count || '?') + ' cores · load ' + (h.load_avg ? h.load_avg.join(' ') : '—');
-      setBar($('cpu-bar'), h.cpu_percent, sev.cpu);
-    }
-    if (h.ram) {
-      $('ram-val').textContent = h.ram.percent.toFixed(1);
-      $('ram-sub').textContent = h.ram.used_gb + ' / ' + h.ram.total_gb + ' GB';
-      setBar($('ram-bar'), h.ram.percent, sev.ram);
-    }
-    if (h.disk) {
-      $('disk-val').textContent = h.disk.percent.toFixed(1);
-      $('disk-sub').textContent = h.disk.used_gb + ' / ' + h.disk.total_gb + ' GB';
-      setBar($('disk-bar'), h.disk.percent, sev.disk);
-    }
-    if (h.uptime_seconds) {
-      $('uptime-val').textContent = fmtUptime(h.uptime_seconds);
-      const la = (h.load_avg && h.load_avg[0]) || 0;
-      const cpuCount = h.cpu_count || 1;
-      const loadPct = Math.min(100, (la / cpuCount) * 100);
-      $('uptime-sub').textContent = 'load ' + la.toFixed(2) + ' / ' + cpuCount + ' cores';
-      setBar($('load-bar'), loadPct, sev.load);
-    }
-    // Swap
-    if (h.swap && h.swap.total_gb > 0) {
-      $('swap-val').textContent = h.swap.percent.toFixed(1);
-      $('swap-sub').textContent = h.swap.used_gb + ' / ' + h.swap.total_gb + ' GB';
-      setBar($('swap-bar'), h.swap.percent, sev.swap);
-    } else if (h.swap) {
-      $('swap-val').textContent = '0';
-      $('swap-sub').textContent = 'disabled';
-    }
-    // Network
-    if (h.network) {
-      $('net-rx').textContent = fmtBytes(h.network.rx_bytes_s);
-      $('net-tx').textContent = fmtBytes(h.network.tx_bytes_s);
-      // Scale bar: show max of rx/tx against 100 MB/s reference
-      const maxBps = Math.max(h.network.rx_bytes_s || 0, h.network.tx_bytes_s || 0);
-      const netPct = Math.min(100, (maxBps / (100*1024*1024)) * 100);
-      setBar($('net-bar'), netPct, sev.net);
-    }
-    // Timesync
-    const ts = d.timesync || {};
-    if (ts.available) {
-      const off = ts.offset_ms;
-      $('ts-val').textContent = (off >= 0 ? '+' : '') + off.toFixed(1) + ' ms';
-      $('ts-sub').textContent = ts.synchronized ? 'synchronized' : 'drift detected';
-      const absPct = Math.min(100, (Math.abs(off) / 1000) * 100);
-      setBar($('ts-bar'), absPct, sev.timesync);
-    } else {
-      $('ts-val').textContent = 'n/a';
-      $('ts-sub').textContent = 'unavailable';
-    }
+  // Header dot
+  setDot(document.getElementById('hdr-dot'), overall);
 
-    // Fail2Ban
-    const f = d.fail2ban || {};
-    if (f.available) {
-      setDot($('f2b-dot'), sev.fail2ban || 'ok');
-      $('f2b-status').textContent = 'active';
-      $('f2b-failed').textContent = (f.total_failed ?? 0).toLocaleString();
-      const cb = f.currently_banned ?? 0;
-      $('f2b-banned').textContent = cb;
-      $('f2b-banned').classList.toggle('alert', cb > 0);
-      $('f2b-total-banned').textContent = (f.total_banned ?? 0).toLocaleString();
-      $('f2b-jails').textContent = (f.jails && f.jails.length) || 0;
-      // Active banned IPs
-      const ipsEl = $('f2b-ips');
-      ipsEl.innerHTML = '';
-      (f.banned_ips || []).forEach(ip => {
-        const span = document.createElement('span');
-        span.className = 'f2b-ip';
-        span.textContent = ip;
-        ipsEl.appendChild(span);
-      });
-      // Recent bans
-      const recentEl = $('f2b-recent-list');
-      recentEl.innerHTML = '';
-      const recent = (f.recent_bans || []);
-      const nowEpoch = f.now_epoch || Math.floor(Date.now()/1000);
-      if (recent.length === 0) {
-        recentEl.innerHTML = '<span style="color:var(--text-faint);font-size:12px">No recent bans</span>';
-      } else {
-        recent.forEach(b => {
-          const age = nowEpoch - b.timeofban;
-          const stillActive = age < b.bantime;
-          const row = document.createElement('div');
-          row.className = 'f2b-recent-item';
-          row.innerHTML =
-            '<span class="dot ' + (stillActive ? 'crit' : 'off') + '"></span>' +
-            '<span class="ip">' + b.ip + '</span>' +
-            '<span class="meta">' + b.jail + ' · ' + fmtDur(b.bantime) + ' ban ' + (stillActive ? '(active)' : '(expired)') + '</span>' +
-            '<span class="age">' + fmtAgoSec(age) + '</span>';
-          recentEl.appendChild(row);
-        });
-      }
-    } else {
-      setDot($('f2b-dot'), 'warn');
-      $('f2b-status').textContent = 'unavailable';
-    }
+  // Timestamp
+  const ts = d.timestamp ? new Date(d.timestamp) : new Date();
+  document.getElementById('last-update').textContent = ts.toLocaleTimeString();
 
-    // Top processes
-    const top = d.top || {};
-    if (top.available) {
-      $('top-age').textContent = fmtAgoSec(top.age_seconds) || 'fresh';
-      const renderTop = (rows, el, key) => {
-        el.innerHTML = '';
-        (rows || []).forEach((p, i) => {
-          const row = document.createElement('div');
-          row.className = 'top-row';
-          row.innerHTML =
-            '<span class="num">' + (p[key].toFixed(1)) + '%</span>' +
-            '<span class="cmd" title="' + p.cmd.replace(/"/g, '&quot;') + '">' +
-            '<span class="user">' + p.user + '</span>  ' + p.cmd + '</span>' +
-            '<span class="age" style="font-family:var(--mono);font-size:11px;color:var(--text-faint)">pid ' + p.pid + '</span>';
-          el.appendChild(row);
-        });
-      };
-      renderTop(top.by_cpu, $('top-cpu'), 'cpu');
-      renderTop(top.by_mem, $('top-mem'), 'mem');
-    } else {
-      $('top-age').textContent = 'unavailable';
-    }
+  // Banner
+  const banner = document.getElementById('banner');
+  banner.className = 'banner ' + overall;
+  setDot(document.getElementById('banner-dot'), overall);
+  const titles = { ok: 'All Systems Operational', warn: 'Degraded Performance', crit: 'Service Disruption', off: 'Status Unknown' };
+  document.getElementById('banner-title').textContent = titles[overall] || 'Status Unknown';
+  document.getElementById('banner-sub').textContent =
+    overall === 'ok' ? 'All monitored services are running normally.' :
+    overall === 'warn' ? 'One or more services are experiencing issues.' :
+    overall === 'crit' ? 'One or more services are down or critical.' :
+    'Unable to determine system status.';
 
-    // Docker
-    const dk = d.docker || {};
-    if (dk.available) {
-      setDot($('dock-dot'), sev.docker || 'ok');
-      $('dock-status').textContent = dk.running + '/' + dk.total + ' running';
-      const list = $('dock-list');
-      list.innerHTML = '';
-      (dk.containers || []).forEach(c => {
-        const row = document.createElement('div');
-        row.className = 'dock-row';
-        let dotClass = 'ok';
-        if (c.state !== 'running') dotClass = 'crit';
-        else if (c.health === 'unhealthy') dotClass = 'crit';
-        else if (c.health === 'starting') dotClass = 'warn';
-        const healthLabel = c.health !== '-' ? c.health : c.state;
-        row.innerHTML =
-          '<span class="dot ' + dotClass + '"></span>' +
-          '<span class="dock-name">' + c.name + '</span>' +
-          '<span class="dock-health ' + (c.health === 'healthy' ? 'running' : '') + '">' + healthLabel + '</span>' +
-          '<span class="dock-cpu">' + (c.uptime || '') + '</span>';
-        list.appendChild(row);
-      });
-    } else {
-      setDot($('dock-dot'), 'crit');
-      $('dock-status').textContent = 'unavailable';
-    }
+  // Favicon
+  const fc = overall === 'ok' ? '%2310b981' : overall === 'warn' ? '%23f59e0b' : '%23ef4444';
+  document.getElementById('favicon').href =
+    `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='8' fill='${fc}'/></svg>`;
 
-    // N8N
-    const n = d.n8n || {};
-    if (n.reachable) {
-      setDot($('n8n-dot'), sev.n8n || 'ok');
-      $('n8n-status').textContent = 'online';
-      $('n8n-row').innerHTML =
-        '<span class="mono code-ok">' + n.status_code + '</span>' +
-        '<span>·</span><span class="mono">' + n.latency_ms + 'ms</span>' +
-        '<span>·</span><span class="mono" style="color:var(--text-faint)">' + n.url + '</span>';
-    } else {
-      setDot($('n8n-dot'), 'crit');
-      $('n8n-status').textContent = 'offline';
-      $('n8n-row').innerHTML =
-        '<span class="mono code-bad">' + (n.status_code || 'ERR') + '</span>' +
-        '<span>·</span><span style="color:var(--text-faint)">' + (n.error || 'unreachable') + '</span>';
-    }
+  renderServices(d.services || [], d.severity || {});
+  renderSecurity(d.fail2ban || {}, sev.fail2ban);
+  renderBackup(d.restic || {}, sev.restic);
+  renderMetrics(d.metrics || {}, sev);
+  renderTech(d);
+}
 
-    // Overall banner
-    const worst = sev.overall || 'ok';
-    const banner = $('banner');
-    banner.classList.remove('ok','warn','crit');
-    banner.classList.add(worst);
-    setDot($('banner-dot'), worst);
-    $('banner-title').textContent =
-      worst === 'ok'   ? 'All systems operational' :
-      worst === 'warn' ? 'Some systems degraded'    :
-                         'Systems reporting errors';
-    $('banner-sub').textContent =
-      (dk.available ? dk.running + '/' + dk.total + ' containers · ' : '') +
-      (f.available ? (f.currently_banned ?? 0) + ' active bans · ' : '') +
-      (n.reachable ? 'n8n online' : 'n8n offline');
+// ── Services ────────────────────────────────────────────────────
 
-    // Favicon + title
-    setFavicon(FAVI_COLORS[worst] || FAVI_COLORS.ok);
-    document.title = TITLE_PREFIX[worst] + 'Server Status · statusmdobner';
+function renderServices(services, sev) {
+  const grid = document.getElementById('svc-grid');
+  const sumEl = document.getElementById('svc-summary');
 
-    updateLastSeen();
+  if (!services.length) {
+    grid.innerHTML = '<div class="dim" style="font-size:13px">No services available.</div>';
+    sumEl.textContent = '';
+    return;
   }
 
-  function updateLastSeen() {
-    if (lastTs) $('last-update').textContent = 'updated ' + fmtAgo(lastTs);
-  }
-  setInterval(updateLastSeen, 5000);
+  const running = services.filter(s => s.state === 'running').length;
+  sumEl.innerHTML = `<span class="${running < services.length ? 'tag-warn' : 'tag-ok'}">${running}/${services.length} running</span>`;
 
-  // ---- WebSocket with auto-reconnect ----
-  let ws = null;
-  let reconnectDelay = 1000;
-  function connect() {
-    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    ws = new WebSocket(proto + '//' + location.host + '/ws');
-    ws.onopen = () => {
-      reconnectDelay = 1000;
-      setDot($('conn-dot'), 'ok');
-    };
-    ws.onmessage = (ev) => {
-      try { render(JSON.parse(ev.data)); } catch(e) { console.error(e); }
-    };
-    ws.onclose = () => {
-      setDot($('conn-dot'), 'crit');
-      setTimeout(connect, reconnectDelay);
-      reconnectDelay = Math.min(reconnectDelay * 2, 30000);
-    };
-    ws.onerror = () => { try { ws.close(); } catch(e) {} };
+  grid.innerHTML = services.map(s => {
+    const up = s.state === 'running';
+    const health = s.health && s.health !== '-' ? s.health : (up ? 'running' : s.state);
+    const healthCls = health === 'healthy' ? 'healthy' : health === 'unhealthy' ? 'unhealthy' : '';
+    const dotSev = !up ? 'crit' : health === 'unhealthy' ? 'warn' : 'ok';
+    return `<div class="svc-card">
+      <div class="svc-card-top">
+        <div class="svc-name">${esc(s.friendly_name || s.name)}</div>
+        <div class="dot ${dotSev}"></div>
+      </div>
+      <div class="svc-software faint">${esc(s.software || '')}</div>
+      <div class="svc-footer">
+        <div class="svc-uptime">${s.uptime || '—'}</div>
+        <div class="svc-health ${healthCls}">${esc(health)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Security / Fail2Ban ─────────────────────────────────────────
+
+function renderSecurity(f2b, sevKey) {
+  setDot(document.getElementById('f2b-dot'), sevKey || 'off');
+
+  const statsEl = document.getElementById('f2b-stats');
+  const eventsEl = document.getElementById('f2b-events');
+  const sumEl = document.getElementById('f2b-summary');
+
+  if (!f2b.available) {
+    statsEl.innerHTML = '<div class="dim" style="font-size:13px">Fail2Ban data not available.</div>';
+    eventsEl.innerHTML = '';
+    sumEl.textContent = '';
+    return;
   }
-  connect();
-  fetch('/api/status').then(r => r.json()).then(render).catch(()=>{});
-})();
+
+  const cb = f2b.currently_banned || 0;
+  const tb = f2b.total_banned || 0;
+  sumEl.innerHTML = cb > 0 ? `<span class="tag-${cb >= 20 ? 'crit' : 'warn'}">${cb} active ban${cb !== 1 ? 's' : ''}</span>` : '<span class="tag-ok">No active bans</span>';
+
+  statsEl.innerHTML = [
+    ['Currently Banned', `<span class="v ${cb > 0 ? 'alert' : ''}">${cb}</span>`],
+    ['Total Banned', `<span class="v">${tb}</span>`],
+    ['Jails Active', `<span class="v">${(f2b.jails || []).length}</span>`],
+  ].map(([k, v]) => `<div class="f2b-stat"><div class="k">${k}</div>${v}</div>`).join('');
+
+  const bans = f2b.recent_bans || [];
+  if (!bans.length) {
+    eventsEl.innerHTML = '<div class="faint" style="font-size:12px">No recent ban events.</div>';
+    return;
+  }
+  eventsEl.innerHTML = bans.slice(0, 10).map(b => {
+    const flag = b.flag || '🏳';
+    const loc = [b.city, b.country].filter(Boolean).join(', ') || 'Unknown';
+    const label = b.jail_label || b.jail || '—';
+    return `<div class="f2b-event">
+      <div class="flag">${flag}</div>
+      <div class="info">
+        <div class="ip">${esc(b.ip)}</div>
+        <div class="detail">${esc(label)} · ${esc(loc)}</div>
+      </div>
+      <div class="age">${timeAgo(b.timeofban)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Backup ──────────────────────────────────────────────────────
+
+function renderBackup(res, sevKey) {
+  const meta = document.getElementById('backup-meta');
+  const badge = document.getElementById('backup-badge');
+  const details = document.getElementById('backup-details');
+  const sum = document.getElementById('backup-summary');
+
+  const sev = sevKey || (res.available ? (res.status === 'ok' ? 'ok' : res.status === 'warn' ? 'warn' : 'crit') : 'off');
+
+  if (!res.available) {
+    meta.textContent = 'Backup data not available.';
+    badge.className = 'backup-badge off'; badge.textContent = 'N/A';
+    details.innerHTML = '';
+    sum.textContent = '';
+    return;
+  }
+
+  const labelMap = { ok: 'OK', warn: 'Warning', error: 'Error', unknown: 'Unknown' };
+  badge.className = `backup-badge ${sev}`;
+  badge.textContent = labelMap[res.status] || '—';
+
+  if (res.last_run_iso) {
+    const age = res.age_hours != null ? `${res.age_hours}h ago` : '';
+    meta.textContent = `Last backup ${age} — ${res.last_error ? res.last_error : (res.dropbox_synced ? 'Synced to Dropbox' : 'Local only')}`;
+  } else {
+    meta.textContent = res.last_error || 'No backup run found';
+  }
+
+  const items = [
+    ['Snapshots', res.snapshot_count != null ? res.snapshot_count : '—'],
+    ['Repo Size', res.repo_size_mb != null ? res.repo_size_mb + ' MB' : '—'],
+    ['Last Run', res.age_hours != null ? res.age_hours + 'h ago' : '—'],
+    ['Dropbox', res.dropbox_synced ? '✓ Synced' : '✗ Not synced'],
+  ];
+  details.innerHTML = items.map(([k, v]) =>
+    `<div class="backup-detail"><div class="dk">${k}</div><div class="dv">${esc(String(v))}</div></div>`
+  ).join('');
+
+  sum.innerHTML = res.status === 'ok' ? '<span class="tag-ok">Healthy</span>' :
+    res.status === 'warn' ? `<span class="tag-warn">${res.last_error ? esc(res.last_error.slice(0,40)) : 'Warning'}</span>` :
+    `<span class="tag-crit">Error</span>`;
+}
+
+// ── Metrics ─────────────────────────────────────────────────────
+
+function renderMetrics(m, sev) {
+  const cpu = m.cpu_percent != null ? m.cpu_percent : null;
+  const ram = m.ram || {};
+  const disk = m.disk || {};
+  const net = m.network || {};
+
+  document.getElementById('uptime-display').textContent = m.uptime_seconds ? fmtUptime(m.uptime_seconds) : '';
+
+  const primary = [
+    metricCard('CPU', cpu != null ? cpu.toFixed(1) : '—', '%', null, cpu, sev.cpu),
+    metricCard('RAM', ram.percent != null ? ram.percent.toFixed(1) : '—', '%',
+      ram.used_gb != null ? `${ram.used_gb} / ${ram.total_gb} GB` : null,
+      ram.percent, sev.ram),
+    metricCard('Disk', disk.percent != null ? disk.percent.toFixed(1) : '—', '%',
+      disk.used_gb != null ? `${disk.used_gb} / ${disk.total_gb} GB` : null,
+      disk.percent, sev.disk),
+    `<div class="metric">
+      <div class="metric-label">Network</div>
+      <div class="dual-row">
+        <span class="down"><span class="arrow">↓</span>${fmtBytes(net.rx_bytes_s)}</span>
+        <span class="up"><span class="arrow">↑</span>${fmtBytes(net.tx_bytes_s)}</span>
+      </div>
+    </div>`,
+  ];
+
+  document.getElementById('metrics-primary').innerHTML = primary.join('');
+  document.getElementById('metrics-secondary').innerHTML = '';
+}
+
+// ── Technical section ───────────────────────────────────────────
+
+function renderTech(d) {
+  const n8n = d.n8n || {};
+  const infra = d.infrastructure || [];
+  const top = d.top || {};
+
+  // n8n
+  const n8nEl = document.getElementById('n8n-row');
+  const n8nSev = (d.severity || {}).n8n || 'off';
+  n8nEl.innerHTML = `
+    <div class="dot ${n8nSev}"></div>
+    <span style="font-weight:500">${n8n.reachable ? 'Reachable' : 'Unreachable'}</span>
+    ${n8n.latency_ms != null ? `<span class="n8n-latency">${n8n.latency_ms}ms</span>` : ''}
+    ${n8n.url ? `<span class="n8n-url">${esc(n8n.url)}</span>` : ''}
+  `;
+
+  // Infra containers
+  const infraEl = document.getElementById('infra-list');
+  const infraWrap = document.getElementById('infra-wrap');
+  if (!infra.length) {
+    infraWrap.style.display = 'none';
+  } else {
+    infraWrap.style.display = '';
+    infraEl.innerHTML = infra.map(c => {
+      const up = c.state === 'running';
+      const health = c.health && c.health !== '-' ? c.health : '';
+      const dotSev = !up ? 'crit' : health === 'unhealthy' ? 'warn' : 'ok';
+      return `<div class="dock-row">
+        <div class="dot ${dotSev}" style="width:8px;height:8px"></div>
+        <div>
+          <div class="dock-name">${esc(c.friendly_name || c.name)}</div>
+          ${c.software ? `<div class="dock-sub">${esc(c.software)}</div>` : ''}
+        </div>
+        <div class="dock-health ${up ? 'running' : ''}">${esc(c.state)}</div>
+        <div class="dock-uptime">${c.uptime || '—'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Top processes
+  const topEl = document.getElementById('top-grid');
+  const topWrap = document.getElementById('top-wrap');
+  const byCpu = (top.by_cpu || []).slice(0, 5);
+  const byMem = (top.by_mem || []).slice(0, 5);
+  if (!byCpu.length && !byMem.length) {
+    topWrap.style.display = 'none';
+  } else {
+    topWrap.style.display = '';
+    const mkRows = (procs, valKey, valFmt) => procs.map(p =>
+      `<div class="top-row">
+        <div class="top-pct">${p[valKey] != null ? valFmt(p[valKey]) : '—'}</div>
+        <div class="top-name">${esc(p.name || p.cmd || '?')}</div>
+        <div class="top-val">${p.pid ? `pid ${p.pid}` : ''}</div>
+      </div>`).join('');
+    topEl.innerHTML = `
+      <div class="top-col"><h3>By CPU</h3>${mkRows(byCpu, 'cpu_percent', v => v.toFixed(1)+'%')}</div>
+      <div class="top-col"><h3>By Memory</h3>${mkRows(byMem, 'mem_percent', v => v.toFixed(1)+'%')}</div>`;
+  }
+
+  // Tech summary
+  document.getElementById('tech-summary').innerHTML =
+    infra.length ? `<span class="faint">${infra.length} infra container${infra.length !== 1 ? 's' : ''}</span>` : '';
+}
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── WebSocket / polling ─────────────────────────────────────────
+
+const API = '/api/public-status';
+const WS_URL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws';
+let retryMs = 2000;
+
+function fetchHttp() {
+  fetch(API)
+    .then(r => r.json())
+    .then(d => { retryMs = 2000; render(d); })
+    .catch(() => {})
+    .finally(() => setTimeout(fetchHttp, 30000));
+}
+
+function connectWS() {
+  const ws = new WebSocket(WS_URL);
+  ws.onopen = () => { retryMs = 2000; };
+  ws.onmessage = e => {
+    try { render(JSON.parse(e.data)); } catch(_) {}
+  };
+  ws.onclose = () => { setTimeout(connectWS, retryMs); retryMs = Math.min(retryMs * 1.5, 30000); };
+  ws.onerror = () => ws.close();
+}
+
+// Start with HTTP fetch, then establish WS for live updates
+fetchHttp();
+try { connectWS(); } catch(_) {}
 </script>
 </body>
 </html>

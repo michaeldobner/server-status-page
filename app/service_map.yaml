@@ -1,0 +1,96 @@
+# service_map.yaml — maps Docker container name prefixes to public-friendly metadata.
+#
+# Coolify appends -<uuid> to container names (e.g. "n8n-y109f6ut7ah8x07n8xutqw6d").
+# Matching strips any trailing segment that looks like a Coolify UUID (≥15 lowercase alnum chars).
+# Longer / more specific prefixes are matched first.
+
+services:
+  # ── n8n stack ──────────────────────────────────────────────────────────────
+  n8n-worker:
+    name: "Workflow Worker"
+    software: "n8n"
+    category: "application"
+    public: true
+
+  task-runners:
+    name: "Task Runner"
+    software: "n8n"
+    category: "application"
+    public: true
+
+  n8n:
+    name: "Workflow Engine"
+    software: "n8n"
+    category: "application"
+    public: true
+
+  # ── Data layer ─────────────────────────────────────────────────────────────
+  postgresql:
+    name: "Database"
+    software: "PostgreSQL 16"
+    category: "data"
+    public: true
+
+  redis:
+    name: "Cache & Queue"
+    software: "Redis 6"
+    category: "data"
+    public: true
+
+  # ── Infrastructure (visible but grouped) ──────────────────────────────────
+  coolify-proxy:
+    name: "Reverse Proxy"
+    software: "Traefik"
+    category: "infrastructure"
+    public: true
+
+  coolify-sentinel:
+    name: "Sentinel"
+    software: "Coolify"
+    category: "infrastructure"
+    public: false
+
+  coolify-realtime:
+    name: "Realtime"
+    software: "Coolify"
+    category: "infrastructure"
+    public: false
+
+  coolify-db:
+    name: "Platform Database"
+    software: "PostgreSQL 15"
+    category: "infrastructure"
+    public: false
+
+  coolify-redis:
+    name: "Platform Cache"
+    software: "Redis 7"
+    category: "infrastructure"
+    public: false
+
+  coolify:
+    name: "Deployment Platform"
+    software: "Coolify"
+    category: "infrastructure"
+    public: false
+
+# ── Containers hidden entirely from both views ─────────────────────────────
+# (internal monitoring stack — no user-facing value)
+hidden_prefixes:
+  - "status-"
+  - "prometheus-"
+  - "node_exporter-"
+  - "dockerproxy-"
+
+# ── Jail type labels for Fail2Ban ──────────────────────────────────────────
+jail_labels:
+  sshd:            "SSH Brute Force"
+  nginx:           "Web Scanner"
+  nginx-http-auth: "Web Auth Attack"
+  apache:          "Web Scanner"
+  apache-auth:     "Web Auth Attack"
+  postfix:         "Mail Attack"
+  dovecot:         "Mail Attack"
+  proftpd:         "FTP Attack"
+  vsftpd:          "FTP Attack"
+  default:         "Intrusion Attempt"

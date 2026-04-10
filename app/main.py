@@ -1,9 +1,10 @@
-"""Server Status Page v2 — FastAPI backend.
+"""Server Status Page v3 — FastAPI backend.
 
 Data sources (pull-model):
   * Prometheus (PromQL) for host metrics via node_exporter
   * Prometheus (PromQL) for container metrics via cadvisor
   * JSON files on disk for fail2ban history & top processes
+  * JSON file on disk for restic backup status
   * Direct HTTP for n8n liveness check
 
 No direct /proc, no docker.sock, no pid:host mounts in this container.
@@ -13,6 +14,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -30,12 +32,14 @@ DOCKER_API_URL = os.environ.get("DOCKER_API_URL", "http://dockerproxy:2375")
 N8N_URL = os.environ.get("N8N_URL", "https://n8nmdobner.duckdns.org")
 FAIL2BAN_JSON = Path(os.environ.get("FAIL2BAN_JSON", "/host/status/fail2ban.json"))
 TOP_JSON = Path(os.environ.get("TOP_JSON", "/host/status/top.json"))
+RESTIC_JSON = Path(os.environ.get("RESTIC_JSON", "/host/status/restic.json"))
 UPDATE_INTERVAL = int(os.environ.get("UPDATE_INTERVAL", "30"))
 STATIC_DIR = Path(__file__).parent / "static"
 THRESHOLDS_PATH = Path(__file__).parent / "thresholds.yaml"
+SERVICE_MAP_PATH = Path(__file__).parent / "service_map.yaml"
 
 app = FastAPI(
-    title="Server Status Page v2",
+    title="Server Status Page v3",
     docs_url=None,       # disable public /docs (Swagger UI)
     redoc_url=None,      # disable public /redoc
     openapi_url=None,    # disable /openapi.json schema dump
@@ -47,6 +51,40 @@ try:
     THRESHOLDS = yaml.safe_load(THRESHOLDS_PATH.read_text())
 except Exception:
     THRESHOLDS = {}
+
+
+# ---------- Service map ----------
+try:
+    _smap_raw = yaml.safe_load(SERVICE_MAP_PATH.read_text())
+    SERVICE_MAP: dict[str, Any] = _smap_raw.get("services", {})
+    HIDDEN_PREFIXES: list[str] = _smap_raw.get("hidden_prefixes", [])
+    JAIL_LABELS: dict[str, str] = _smap_raw.get("jail_labels", {})
+except Exception:
+    SERVICE_MAP = {}
+    HIDDEN_PREFIXES = []
+    JAIL_LABELS = {}
+
+# Pre-sort service map keys longest-first so more specific prefixes match first
+_SERVICE_MAP_KEYS: list[str] = sorted(SERVICE_MAP.keys(), key=len, reverse=True)
+
+# Coolify appends a UUID-like suffix: ≥15 lowercase alphanumeric chars after a dash
+_COOLIFY_SUFFIX = re.compile(r"-[a-z0-9]{15,}$")
+
+
+def _strip_coolify_suffix(name: str) -> str:
+    return _COOLIFY_SUFFIX.sub("", name)
+
+
+def _lookup_service(raw_name: str) -> dict[str, Any] | None:
+    """Return service_map entry for a container name, or None if hidden/unknown."""
+    base = _strip_coolify_suffix(raw_name)
+    for key in _HIDDEN_PREFIXES:
+        if base.startswith(key.rstrip("-")):
+            return None  # hidden entirely
+    for key in _SERVICE_MAP_KEYS:
+        if base == key or base.startswith(key):
+            return {"prefix": key, **SERVICE_MAP[key]}
+    return None
 
 
 def classify(value: float | None, warn: float, crit: float) -> str:
@@ -303,6 +341,19 @@ async def collect_n8n() -> dict[str, Any]:
         }
 
 
+def collect_restic() -> dict[str, Any]:
+    if not RESTIC_JSON.exists():
+        return {"available": False, "error": f"{RESTIC_JSON} not found"}
+    try:
+        data = json.loads(RESTIC_JSON.read_text())
+        data["available"] = True
+        age = time.time() - RESTIC_JSON.stat().st_mtime
+        data["file_age_seconds"] = int(age)
+        return data
+    except Exception as e:
+        return {"available": False, "error": str(e)}
+
+
 def apply_severity(d: dict[str, Any]) -> dict[str, Any]:
     """Compute severity tags for each metric group using thresholds.yaml."""
     t = THRESHOLDS or {}
@@ -373,6 +424,13 @@ def apply_severity(d: dict[str, Any]) -> dict[str, Any]:
         d["severity"]["n8n"] = classify(n.get("latency_ms", 0),
                                         n_t.get("latency_ms", {}).get("warn", 1500),
                                         n_t.get("latency_ms", {}).get("crit", 5000))
+    # Restic backup
+    res = d.get("restic", {})
+    if res.get("available"):
+        rs = res.get("status", "unknown")
+        d["severity"]["restic"] = {"ok": "ok", "warn": "warn"}.get(rs, "crit")
+    else:
+        d["severity"]["restic"] = "warn"
     # Overall
     order = {"ok": 0, "warn": 1, "crit": 2, "off": 0}
     worst = "ok"
@@ -390,6 +448,7 @@ async def collect_all() -> dict[str, Any]:
     dk_task = asyncio.create_task(collect_docker())
     f2b = collect_fail2ban()
     topd = collect_top()
+    restic = collect_restic()
     host, ts, dk, n8n = await asyncio.gather(host_task, ts_task, dk_task, n8n_task)
     data: dict[str, Any] = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -399,8 +458,89 @@ async def collect_all() -> dict[str, Any]:
         "top": topd,
         "docker": dk,
         "n8n": n8n,
+        "restic": restic,
     }
     return apply_severity(data)
+
+
+# ---------- Public/Internal views ----------
+
+def _enrich_containers(containers: list[dict[str, Any]]) -> dict[str, Any]:
+    """Split containers into mapped services + unmapped remainder.
+
+    Returns:
+        {
+          "services": [...],   # containers with friendly names from service_map
+          "infrastructure": [...],  # public=False entries
+          "unknown": [...],    # containers not in service_map (not hidden)
+        }
+    """
+    services: list[dict[str, Any]] = []
+    infra: list[dict[str, Any]] = []
+    unknown: list[dict[str, Any]] = []
+
+    for c in containers:
+        mapping = _lookup_service(c["name"])
+        if mapping is None:
+            # Either hidden or unknown — check hidden
+            base = _strip_coolify_suffix(c["name"])
+            if any(base.startswith(p.rstrip("-")) for p in HIDDEN_PREFIXES):
+                continue  # skip entirely
+            unknown.append(c)
+            continue
+
+        enriched = {
+            **c,
+            "friendly_name": mapping["name"],
+            "software": mapping.get("software", ""),
+            "category": mapping.get("category", "application"),
+            "public": mapping.get("public", True),
+        }
+        if mapping.get("public", True):
+            services.append(enriched)
+        else:
+            infra.append(enriched)
+
+    return {"services": services, "infrastructure": infra, "unknown": unknown}
+
+
+def build_public_status(data: dict[str, Any]) -> dict[str, Any]:
+    """Return a public-friendly view: no raw process list, no internal infra."""
+    sev = data.get("severity", {})
+    host = data.get("host", {})
+    f2b = data.get("fail2ban", {})
+    dk = data.get("docker", {})
+    restic = data.get("restic", {})
+
+    split = _enrich_containers(dk.get("containers", []))
+
+    # Fail2Ban: only surface recent_bans (already GeoIP-enriched by exporter)
+    f2b_public = {
+        "available": f2b.get("available", False),
+        "currently_banned": f2b.get("currently_banned", 0),
+        "total_banned": f2b.get("total_banned", 0),
+        "recent_bans": f2b.get("recent_bans", []),
+    }
+
+    # Restic: surface all fields except raw log details
+    restic_public = {k: v for k, v in restic.items() if k != "last_error" or sev.get("restic") != "ok"}
+
+    return {
+        "timestamp": data.get("timestamp"),
+        "severity": sev,
+        "services": split["services"],
+        "infrastructure": split["infrastructure"],
+        "metrics": {
+            "cpu_percent": host.get("cpu_percent"),
+            "ram": host.get("ram"),
+            "disk": host.get("disk"),
+            "uptime_seconds": host.get("uptime_seconds"),
+            "network": host.get("network"),
+        },
+        "fail2ban": f2b_public,
+        "restic": restic_public,
+        "n8n": data.get("n8n"),
+    }
 
 
 # ---------- HTTP Routes ----------
@@ -408,6 +548,24 @@ async def collect_all() -> dict[str, Any]:
 @app.get("/api/status")
 async def api_status() -> JSONResponse:
     return JSONResponse(await collect_all())
+
+
+@app.get("/api/public-status")
+async def api_public_status() -> JSONResponse:
+    data = await collect_all()
+    return JSONResponse(build_public_status(data))
+
+
+@app.get("/api/internal-status")
+async def api_internal_status() -> JSONResponse:
+    """Full internal view including all containers, top processes, timesync."""
+    data = await collect_all()
+    dk = data.get("docker", {})
+    split = _enrich_containers(dk.get("containers", []))
+    data["docker"]["services"] = split["services"]
+    data["docker"]["infrastructure"] = split["infrastructure"]
+    data["docker"]["unknown"] = split["unknown"]
+    return JSONResponse(data)
 
 
 @app.get("/healthz")
@@ -444,10 +602,10 @@ async def index() -> FileResponse:
 async def ws_endpoint(ws: WebSocket) -> None:
     await ws.accept()
     try:
-        await ws.send_json(await collect_all())
+        await ws.send_json(build_public_status(await collect_all()))
         while True:
             await asyncio.sleep(UPDATE_INTERVAL)
-            await ws.send_json(await collect_all())
+            await ws.send_json(build_public_status(await collect_all()))
     except WebSocketDisconnect:
         return
     except Exception:
