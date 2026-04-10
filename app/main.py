@@ -33,7 +33,12 @@ UPDATE_INTERVAL = int(os.environ.get("UPDATE_INTERVAL", "30"))
 STATIC_DIR = Path(__file__).parent / "static"
 THRESHOLDS_PATH = Path(__file__).parent / "thresholds.yaml"
 
-app = FastAPI(title="Server Status Page v2")
+app = FastAPI(
+    title="Server Status Page v2",
+    docs_url=None,       # disable public /docs (Swagger UI)
+    redoc_url=None,      # disable public /redoc
+    openapi_url=None,    # disable /openapi.json schema dump
+)
 
 # ---------- Thresholds ----------
 try:
