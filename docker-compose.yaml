@@ -1,46 +1,21 @@
 services:
 
-  # --- Read-only Docker socket proxy (minimal scope for cadvisor) ---
-  dockerproxy:
-    image: tecnativa/docker-socket-proxy:0.3.0
-    container_name: status-dockerproxy
-    restart: unless-stopped
-    environment:
-      CONTAINERS: 1
-      IMAGES: 1
-      INFO: 1
-      PING: 1
-      VERSION: 1
-      NETWORKS: 1
-      SERVICES: 0
-      TASKS: 0
-      VOLUMES: 0
-      POST: 0
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    expose:
-      - "2375"
-    labels:
-      - "traefik.enable=false"
-      - "coolify.managed=true"
-
   # --- Per-container metrics (CPU/RAM) ---
+  # cadvisor mounts the docker socket read-only. Trust surface: the
+  # status-page container (public) does NOT touch the socket — only
+  # cadvisor (internal) does, and it only exposes read-only metrics.
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.2
     container_name: status-cadvisor
     restart: unless-stopped
-    command:
-      - --housekeeping_interval=15s
-      - --docker_only=true
-      - --store_container_labels=false
-      - --disable_metrics=disk,diskIO,accelerator,cpu_topology,memory_numa,tcp,udp,percpu,sched,process,hugetlb,referenced_memory,resctrl,cpuset,advtcp,memory_numa
-    environment:
-      - DOCKER_HOST=tcp://dockerproxy:2375
+    privileged: true
+    devices:
+      - /dev/kmsg
     volumes:
       - /:/rootfs:ro
+      - /var/run:/var/run:ro
       - /sys:/sys:ro
-    depends_on:
-      - dockerproxy
+      - /var/lib/docker:/var/lib/docker:ro
     expose:
       - "8080"
     labels:
