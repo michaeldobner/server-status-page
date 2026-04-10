@@ -309,7 +309,7 @@ def fmt_f2b(d: dict) -> str:
     if ips:
         lines += ["", "Currently banned"]
         for ip in ips[:10]:
-            lines.append(f"<code>{ip}</code>")
+            lines.append(f'<a href="https://ipinfo.io/{ip}">{ip}</a>')
 
     recent = f.get("recent_bans", [])
     if recent:
@@ -317,8 +317,9 @@ def fmt_f2b(d: dict) -> str:
         now_e = int(f.get("now_epoch", time.time()))
         for ban in recent[:8]:
             age_s = now_e - int(ban.get("timeofban", now_e))
+            ip = ban.get("ip", "?")
             lines.append(
-                f"<code>{ban.get('ip','?')}</code>  ·  "
+                f'<a href="https://ipinfo.io/{ip}">{ip}</a>  ·  '
                 f"{ban.get('jail','?')}  ·  {_age(age_s)}"
             )
 
