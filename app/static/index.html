@@ -715,12 +715,16 @@ footer a:hover { color: var(--text); }
       (dk.containers || []).forEach(c => {
         const row = document.createElement('div');
         row.className = 'dock-row';
-        const dotClass = c.state === 'running' ? 'ok' : 'crit';
+        let dotClass = 'ok';
+        if (c.state !== 'running') dotClass = 'crit';
+        else if (c.health === 'unhealthy') dotClass = 'crit';
+        else if (c.health === 'starting') dotClass = 'warn';
+        const healthLabel = c.health !== '-' ? c.health : c.state;
         row.innerHTML =
           '<span class="dot ' + dotClass + '"></span>' +
           '<span class="dock-name">' + c.name + '</span>' +
-          '<span class="dock-health ' + c.state + '">' + c.state + '</span>' +
-          '<span class="dock-cpu">' + (c.cpu_percent?.toFixed(1) || '0.0') + '% · ' + fmtMem(c.mem_bytes) + '</span>';
+          '<span class="dock-health ' + (c.health === 'healthy' ? 'running' : '') + '">' + healthLabel + '</span>' +
+          '<span class="dock-cpu">' + (c.uptime || '') + '</span>';
         list.appendChild(row);
       });
     } else {

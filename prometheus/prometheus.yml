@@ -10,11 +10,6 @@ scrape_configs:
       - targets:
           - node_exporter:9100
 
-  - job_name: cadvisor
-    static_configs:
-      - targets:
-          - cadvisor:8080
-
   - job_name: prometheus
     static_configs:
       - targets:

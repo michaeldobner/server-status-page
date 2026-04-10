@@ -25,6 +25,7 @@ from fastapi.responses import FileResponse, JSONResponse
 
 # ---------- Configuration ----------
 PROMETHEUS_URL = os.environ.get("PROMETHEUS_URL", "http://prometheus:9090")
+DOCKER_API_URL = os.environ.get("DOCKER_API_URL", "http://dockerproxy:2375")
 N8N_URL = os.environ.get("N8N_URL", "https://n8nmdobner.duckdns.org")
 FAIL2BAN_JSON = Path(os.environ.get("FAIL2BAN_JSON", "/host/status/fail2ban.json"))
 TOP_JSON = Path(os.environ.get("TOP_JSON", "/host/status/top.json"))
@@ -189,50 +190,54 @@ async def collect_timesync() -> dict[str, Any]:
     }
 
 
-async def collect_docker_from_cadvisor() -> dict[str, Any]:
-    """Build container list from cadvisor metrics via Prometheus."""
-    # container_last_seen → set of containers; container_memory_usage_bytes → per-container RAM
+async def collect_docker() -> dict[str, Any]:
+    """Query the Docker API via the docker-socket-proxy sidecar."""
     try:
-        client = await prom.client()
-        r = await client.get(
-            f"{prom.base_url}/api/v1/query",
-            params={"query": 'container_last_seen{name!=""}'},
-        )
-        r.raise_for_status()
-        result = r.json().get("data", {}).get("result", [])
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            r = await client.get(f"{DOCKER_API_URL}/containers/json", params={"all": "false"})
+            r.raise_for_status()
+            raw = r.json()
     except Exception as e:
         return {"available": False, "error": str(e)}
 
     now = time.time()
-    cpu_map = await prom.query_map(
-        'sum by (name) (rate(container_cpu_usage_seconds_total{name!=""}[1m])) * 100',
-        "name",
-    )
-    mem_map = await prom.query_map(
-        'container_memory_usage_bytes{name!=""}',
-        "name",
-    )
-
     containers: list[dict[str, Any]] = []
-    for item in result:
-        metric = item.get("metric", {})
-        name = metric.get("name", "")
-        if not name:
-            continue
-        try:
-            last_seen = float(item.get("value", [0, 0])[1])
-        except ValueError:
-            last_seen = 0
-        age = max(0, now - last_seen)
-        state = "running" if age < 30 else "stopped"
+    for c in raw:
+        # Docker returns /prefixed names for each alias; take the first without leading slash
+        names = c.get("Names", [])
+        name = (names[0].lstrip("/") if names else c.get("Id", "")[:12])
+        state = c.get("State", "unknown")
+        status = c.get("Status", "")
+        # Health is embedded in Status like "Up 2 hours (healthy)"
+        health = "-"
+        if "(healthy)" in status:
+            health = "healthy"
+        elif "(unhealthy)" in status:
+            health = "unhealthy"
+        elif "(starting)" in status or "(health: starting)" in status:
+            health = "starting"
+        # Uptime from Created epoch
+        uptime = ""
+        created = c.get("Created", 0)
+        if created and state == "running":
+            delta = int(max(0, now - created))
+            d = delta // 86400
+            h = (delta % 86400) // 3600
+            m = (delta % 3600) // 60
+            if d > 0:
+                uptime = f"{d}d {h}h"
+            elif h > 0:
+                uptime = f"{h}h {m}m"
+            else:
+                uptime = f"{m}m"
         containers.append({
             "name": name,
-            "image": metric.get("image", ""),
+            "image": c.get("Image", ""),
             "state": state,
-            "health": "-",   # cadvisor doesn't expose docker health; use state
-            "uptime": "",
-            "cpu_percent": round(cpu_map.get(name, 0), 1),
-            "mem_bytes": int(mem_map.get(name, 0)),
+            "health": health,
+            "uptime": uptime,
+            "cpu_percent": 0,  # not available without stats API (which is costly)
+            "mem_bytes": 0,
         })
     containers.sort(key=lambda x: x["name"])
     running = sum(1 for c in containers if c["state"] == "running")
@@ -375,7 +380,7 @@ async def collect_all() -> dict[str, Any]:
     n8n_task = asyncio.create_task(collect_n8n())
     host_task = asyncio.create_task(collect_host())
     ts_task = asyncio.create_task(collect_timesync())
-    dk_task = asyncio.create_task(collect_docker_from_cadvisor())
+    dk_task = asyncio.create_task(collect_docker())
     f2b = collect_fail2ban()
     topd = collect_top()
     host, ts, dk, n8n = await asyncio.gather(host_task, ts_task, dk_task, n8n_task)

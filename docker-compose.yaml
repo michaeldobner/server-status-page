@@ -20,24 +20,42 @@ services:
       - "traefik.enable=false"
       - "coolify.managed=true"
 
-  # --- Per-container metrics (CPU/RAM) ---
-  # cadvisor mounts the docker socket read-only. Trust surface: the
-  # status-page container (public) does NOT touch the socket — only
-  # cadvisor (internal) does, and it only exposes read-only metrics.
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.2
-    container_name: status-cadvisor
+  # --- Read-only Docker socket proxy ---
+  # Only GET endpoints for listing containers/images are enabled.
+  # The status-page queries this to get container list and health.
+  # The public status-page container NEVER touches /var/run/docker.sock.
+  dockerproxy:
+    image: tecnativa/docker-socket-proxy:0.3.0
+    container_name: status-dockerproxy
     restart: unless-stopped
-    privileged: true
-    devices:
-      - /dev/kmsg
+    environment:
+      CONTAINERS: 1
+      IMAGES: 1
+      INFO: 1
+      PING: 1
+      VERSION: 1
+      NETWORKS: 1
+      POST: 0
+      BUILD: 0
+      COMMIT: 0
+      CONFIGS: 0
+      DISTRIBUTION: 0
+      EVENTS: 0
+      EXEC: 0
+      GRPC: 0
+      NODES: 0
+      PLUGINS: 0
+      SECRETS: 0
+      SERVICES: 0
+      SESSION: 0
+      SWARM: 0
+      SYSTEM: 0
+      TASKS: 0
+      VOLUMES: 0
     volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     expose:
-      - "8080"
+      - "2375"
     labels:
       - "traefik.enable=false"
       - "coolify.managed=true"
@@ -80,6 +98,7 @@ services:
     restart: unless-stopped
     environment:
       - PROMETHEUS_URL=http://prometheus:9090
+      - DOCKER_API_URL=http://dockerproxy:2375
       - N8N_URL=https://n8nmdobner.duckdns.org
       - FAIL2BAN_JSON=/host/status/fail2ban.json
       - TOP_JSON=/host/status/top.json
@@ -89,6 +108,8 @@ services:
     depends_on:
       prometheus:
         condition: service_healthy
+      dockerproxy:
+        condition: service_started
     expose:
       - "8000"
     labels:
