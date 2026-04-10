@@ -1,0 +1,23 @@
+services:
+  status:
+    build: .
+    image: server-status-page:latest
+    container_name: status-page
+    restart: unless-stopped
+    pid: host
+    environment:
+      - N8N_URL=https://n8nmdobner.duckdns.org
+      - FAIL2BAN_JSON=/host/status/fail2ban.json
+      - HOST_ROOT=/host/root
+      - UPDATE_INTERVAL=30
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/status:/host/status:ro
+      - /:/host/root:ro
+    ports:
+      - "8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.status.rule=Host(`statusmdobner.duckdns.org`)"
+      - "traefik.http.routers.status.entrypoints=http"
+      - "traefik.http.services.status.loadbalancer.server.port=8000"

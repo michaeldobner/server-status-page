@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>Server Status · statusmdobner</title>
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='8' fill='%2310b981'/></svg>" />
+<style>
+:root {
+  --bg: #0a0a0a;
+  --bg-elev: #111113;
+  --bg-card: #141418;
+  --border: #1f1f24;
+  --border-strong: #2a2a31;
+  --text: #ededef;
+  --text-dim: #8b8b93;
+  --text-faint: #5a5a63;
+  --green: #10b981;
+  --green-bg: rgba(16, 185, 129, 0.1);
+  --yellow: #f59e0b;
+  --yellow-bg: rgba(245, 158, 11, 0.1);
+  --red: #ef4444;
+  --red-bg: rgba(239, 68, 68, 0.1);
+  --blue: #3b82f6;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+/* ---------- Header ---------- */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+header .brand {
+  display: flex; align-items: center; gap: 12px;
+}
+header h1 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+header .host {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+.last-update {
+  font-size: 12px;
+  color: var(--text-faint);
+  font-family: var(--mono);
+}
+
+/* ---------- Overall banner ---------- */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  margin-bottom: 28px;
+}
+.banner.ok { border-color: rgba(16, 185, 129, 0.3); background: linear-gradient(180deg, var(--green-bg), transparent); }
+.banner.warn { border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(180deg, var(--yellow-bg), transparent); }
+.banner.crit { border-color: rgba(239, 68, 68, 0.3); background: linear-gradient(180deg, var(--red-bg), transparent); }
+.banner-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.banner-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.banner .ind { width: 12px; height: 12px; }
+
+/* ---------- Dot indicator ---------- */
+.dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  position: relative;
+  flex-shrink: 0;
+}
+.dot.ok    { background: var(--green); box-shadow: 0 0 0 0 var(--green); animation: pulse 2s infinite; }
+.dot.warn  { background: var(--yellow); box-shadow: 0 0 0 0 var(--yellow); animation: pulse-y 2s infinite; }
+.dot.crit  { background: var(--red); box-shadow: 0 0 0 0 var(--red); animation: pulse-r 1.5s infinite; }
+.dot.off   { background: var(--text-faint); }
+
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55); }
+  70%  { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+@keyframes pulse-y {
+  0%   { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.55); }
+  70%  { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+@keyframes pulse-r {
+  0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+  70%  { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* ---------- Metric cards ---------- */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+@media (max-width: 720px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 380px) { .metrics { grid-template-columns: 1fr; } }
+
+.metric {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 18px 16px;
+}
+.metric-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+.metric-value {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font);
+}
+.metric-value .unit { font-size: 16px; color: var(--text-dim); font-weight: 500; margin-left: 2px; }
+.metric-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.bar {
+  margin-top: 12px;
+  height: 5px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+.bar-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--green);
+  border-radius: 999px;
+  transition: width 600ms cubic-bezier(.2,.7,.2,1), background 300ms;
+}
+.bar-fill.warn { background: var(--yellow); }
+.bar-fill.crit { background: var(--red); }
+
+/* ---------- Section card ---------- */
+.section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.section-head h2 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.section-head .right {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.section-body {
+  padding: 14px 20px 18px;
+}
+.section-body.empty {
+  color: var(--text-faint);
+  font-size: 13px;
+  text-align: center;
+  padding: 28px 20px;
+}
+
+/* ---------- Fail2ban stats ---------- */
+.f2b-stats {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.f2b-stat .k {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
+.f2b-stat .v {
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+.f2b-stat .v.alert { color: var(--red); }
+.f2b-ips {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.f2b-ip {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 4px 10px;
+  background: var(--red-bg);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  border-radius: 999px;
+}
+
+/* ---------- Docker table ---------- */
+.dock-list {
+  display: flex;
+  flex-direction: column;
+}
+.dock-row {
+  display: grid;
+  grid-template-columns: 14px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.dock-row:last-child { border-bottom: 0; }
+.dock-name { color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dock-health {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.dock-health.healthy { color: var(--green); }
+.dock-health.unhealthy { color: var(--red); }
+.dock-uptime {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* ---------- N8N ---------- */
+.n8n-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.n8n-row .mono { font-family: var(--mono); }
+.n8n-row .code-ok  { color: var(--green); font-weight: 600; }
+.n8n-row .code-bad { color: var(--red); font-weight: 600; }
+
+/* ---------- Footer ---------- */
+footer {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 12px;
+}
+footer a { color: var(--text-dim); text-decoration: none; }
+footer a:hover { color: var(--text); }
+
+/* ---------- Skeleton ---------- */
+.skel {
+  display: inline-block;
+  background: linear-gradient(90deg, var(--border) 0%, var(--border-strong) 50%, var(--border) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 4px;
+  color: transparent;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="brand">
+      <span class="dot ok" id="conn-dot"></span>
+      <h1>Server Status</h1>
+    </div>
+    <div class="host" id="host-domain">statusmdobner.duckdns.org</div>
+  </header>
+
+  <div class="banner ok" id="banner">
+    <span class="dot ok ind" id="banner-dot"></span>
+    <div style="flex:1">
+      <div class="banner-title" id="banner-title">Loading…</div>
+      <div class="banner-sub" id="banner-sub"><span class="skel">initial snapshot</span></div>
+    </div>
+    <div class="last-update" id="last-update"></div>
+  </div>
+
+  <!-- Metric cards -->
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">CPU</div>
+      <div class="metric-value"><span id="cpu-val">—</span><span class="unit">%</span></div>
+      <div class="metric-sub" id="cpu-sub">&nbsp;</div>
+      <div class="bar"><div class="bar-fill" id="cpu-bar" style="width:0%"></div></div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Memory</div>
+      <div class="metric-value"><span id="ram-val">—</span><span class="unit">%</span></div>
+      <div class="metric-sub" id="ram-sub">&nbsp;</div>
+      <div class="bar"><div class="bar-fill" id="ram-bar" style="width:0%"></div></div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Disk</div>
+      <div class="metric-value"><span id="disk-val">—</span><span class="unit">%</span></div>
+      <div class="metric-sub" id="disk-sub">&nbsp;</div>
+      <div class="bar"><div class="bar-fill" id="disk-bar" style="width:0%"></div></div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Uptime</div>
+      <div class="metric-value" id="uptime-val">—</div>
+      <div class="metric-sub" id="uptime-sub">&nbsp;</div>
+      <div class="bar"><div class="bar-fill" id="load-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Fail2Ban -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Fail2Ban</h2>
+      <div class="right"><span class="dot off" id="f2b-dot"></span><span id="f2b-status">—</span></div>
+    </div>
+    <div class="section-body" id="f2b-body">
+      <div class="f2b-stats">
+        <div class="f2b-stat"><div class="k">Total failed</div><div class="v" id="f2b-failed">—</div></div>
+        <div class="f2b-stat"><div class="k">Currently banned</div><div class="v" id="f2b-banned">—</div></div>
+        <div class="f2b-stat"><div class="k">Total banned</div><div class="v" id="f2b-total-banned">—</div></div>
+        <div class="f2b-stat"><div class="k">Jails</div><div class="v" id="f2b-jails">—</div></div>
+      </div>
+      <div class="f2b-ips" id="f2b-ips"></div>
+    </div>
+  </div>
+
+  <!-- Docker -->
+  <div class="section">
+    <div class="section-head">
+      <h2>Docker Containers</h2>
+      <div class="right"><span class="dot off" id="dock-dot"></span><span id="dock-status">—</span></div>
+    </div>
+    <div class="section-body" id="dock-body">
+      <div class="dock-list" id="dock-list"></div>
+    </div>
+  </div>
+
+  <!-- N8N -->
+  <div class="section">
+    <div class="section-head">
+      <h2>n8n</h2>
+      <div class="right"><span class="dot off" id="n8n-dot"></span><span id="n8n-status">—</span></div>
+    </div>
+    <div class="section-body">
+      <div class="n8n-row" id="n8n-row">—</div>
+    </div>
+  </div>
+
+  <footer>
+    <div>Live updates every 30s · <a href="/api/status">JSON</a></div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+
+  // ----- Helpers -----
+  function cls(pct) {
+    if (pct == null || isNaN(pct)) return 'off';
+    if (pct < 70) return 'ok';
+    if (pct < 90) return 'warn';
+    return 'crit';
+  }
+  function setBar(barEl, pct) {
+    if (pct == null || isNaN(pct)) { barEl.style.width = '0%'; return; }
+    barEl.style.width = Math.min(100, Math.max(0, pct)) + '%';
+    barEl.classList.remove('warn', 'crit');
+    const c = cls(pct);
+    if (c === 'warn') barEl.classList.add('warn');
+    if (c === 'crit') barEl.classList.add('crit');
+  }
+  function fmtUptime(sec) {
+    if (!sec) return '—';
+    const d = Math.floor(sec / 86400);
+    const h = Math.floor((sec % 86400) / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    if (d > 0) return d + 'd ' + h + 'h';
+    if (h > 0) return h + 'h ' + m + 'm';
+    return m + 'm';
+  }
+  function fmtAgo(iso) {
+    if (!iso) return '';
+    const t = new Date(iso);
+    const d = Math.round((Date.now() - t.getTime()) / 1000);
+    if (d < 5) return 'just now';
+    if (d < 60) return d + 's ago';
+    const m = Math.floor(d / 60);
+    if (m < 60) return m + 'm ago';
+    const h = Math.floor(m / 60);
+    return h + 'h ago';
+  }
+  function setDot(el, state) {
+    el.classList.remove('ok','warn','crit','off');
+    el.classList.add(state);
+  }
+
+  // ----- Render -----
+  let lastTs = null;
+  function render(d) {
+    lastTs = d.timestamp;
+
+    // Host metrics
+    const h = d.host || {};
+    if (h.cpu_percent != null) {
+      $('cpu-val').textContent = h.cpu_percent.toFixed(1);
+      $('cpu-sub').textContent = (h.cpu_count || '?') + ' cores · load ' + (h.load_avg ? h.load_avg.join(' ') : '—');
+      setBar($('cpu-bar'), h.cpu_percent);
+    }
+    if (h.ram) {
+      $('ram-val').textContent = h.ram.percent.toFixed(1);
+      $('ram-sub').textContent = h.ram.used_gb + ' / ' + h.ram.total_gb + ' GB';
+      setBar($('ram-bar'), h.ram.percent);
+    }
+    if (h.disk && h.disk.percent != null) {
+      $('disk-val').textContent = h.disk.percent.toFixed(1);
+      $('disk-sub').textContent = h.disk.used_gb + ' / ' + h.disk.total_gb + ' GB';
+      setBar($('disk-bar'), h.disk.percent);
+    }
+    if (h.uptime_seconds) {
+      $('uptime-val').textContent = fmtUptime(h.uptime_seconds);
+      const la = (h.load_avg && h.load_avg[0]) || 0;
+      const cpuCount = h.cpu_count || 1;
+      const loadPct = Math.min(100, (la / cpuCount) * 100);
+      $('uptime-sub').textContent = 'load ' + la.toFixed(2) + ' / ' + cpuCount;
+      setBar($('load-bar'), loadPct);
+    }
+
+    // Fail2Ban
+    const f = d.fail2ban || {};
+    if (f.available) {
+      setDot($('f2b-dot'), 'ok');
+      $('f2b-status').textContent = 'active';
+      $('f2b-failed').textContent = (f.total_failed ?? 0).toLocaleString();
+      const cb = f.currently_banned ?? 0;
+      $('f2b-banned').textContent = cb;
+      $('f2b-banned').classList.toggle('alert', cb > 0);
+      $('f2b-total-banned').textContent = (f.total_banned ?? 0).toLocaleString();
+      $('f2b-jails').textContent = (f.jails && f.jails.length) || 0;
+      const ipsEl = $('f2b-ips');
+      ipsEl.innerHTML = '';
+      const ips = f.banned_ips || [];
+      if (ips.length === 0) {
+        ipsEl.innerHTML = '<span style="color:var(--text-faint);font-size:12px">No IPs currently banned</span>';
+      } else {
+        ips.forEach(ip => {
+          const span = document.createElement('span');
+          span.className = 'f2b-ip';
+          span.textContent = ip;
+          ipsEl.appendChild(span);
+        });
+      }
+    } else {
+      setDot($('f2b-dot'), 'warn');
+      $('f2b-status').textContent = 'unavailable';
+    }
+
+    // Docker
+    const dk = d.docker || {};
+    if (dk.available) {
+      setDot($('dock-dot'), 'ok');
+      $('dock-status').textContent = dk.running + ' running';
+      const list = $('dock-list');
+      list.innerHTML = '';
+      (dk.containers || []).forEach(c => {
+        const row = document.createElement('div');
+        row.className = 'dock-row';
+        let dotClass = 'ok';
+        if (c.state !== 'running') dotClass = 'crit';
+        else if (c.health === 'unhealthy') dotClass = 'crit';
+        else if (c.health === 'starting') dotClass = 'warn';
+        row.innerHTML =
+          '<span class="dot ' + dotClass + '"></span>' +
+          '<span class="dock-name">' + c.name + '</span>' +
+          '<span class="dock-health ' + (c.health === 'healthy' ? 'healthy' : (c.health === 'unhealthy' ? 'unhealthy' : '')) + '">' +
+          (c.health !== '-' ? c.health : c.state) + '</span>' +
+          '<span class="dock-uptime">' + (c.uptime || '') + '</span>';
+        list.appendChild(row);
+      });
+      if ((dk.containers || []).length === 0) {
+        list.innerHTML = '<div style="color:var(--text-faint);font-size:13px;text-align:center;padding:12px 0">No containers running</div>';
+      }
+    } else {
+      setDot($('dock-dot'), 'crit');
+      $('dock-status').textContent = 'unavailable';
+      $('dock-list').innerHTML = '<div style="color:var(--text-faint);font-size:13px;text-align:center;padding:12px 0">Docker socket not accessible</div>';
+    }
+
+    // N8N
+    const n = d.n8n || {};
+    if (n.reachable) {
+      setDot($('n8n-dot'), 'ok');
+      $('n8n-status').textContent = 'online';
+      $('n8n-row').innerHTML =
+        '<span class="mono code-ok">' + n.status_code + '</span>' +
+        '<span>·</span>' +
+        '<span class="mono">' + n.latency_ms + 'ms</span>' +
+        '<span>·</span>' +
+        '<span class="mono" style="color:var(--text-faint)">' + n.url + '</span>';
+    } else {
+      setDot($('n8n-dot'), 'crit');
+      $('n8n-status').textContent = 'offline';
+      $('n8n-row').innerHTML =
+        '<span class="mono code-bad">' + (n.status_code || 'ERR') + '</span>' +
+        '<span>·</span>' +
+        '<span style="color:var(--text-faint)">' + (n.error || 'unreachable') + '</span>';
+    }
+
+    // Overall banner — aggregate worst state
+    let worst = 'ok';
+    const bump = (s) => { if (s === 'crit') worst = 'crit'; else if (s === 'warn' && worst !== 'crit') worst = 'warn'; };
+    if (h.cpu_percent != null) bump(cls(h.cpu_percent));
+    if (h.ram && h.ram.percent != null) bump(cls(h.ram.percent));
+    if (h.disk && h.disk.percent != null) bump(cls(h.disk.percent));
+    if (dk.available === false) bump('warn');
+    if ((dk.containers || []).some(c => c.health === 'unhealthy' || c.state !== 'running')) bump('crit');
+    if (f.available === false) bump('warn');
+    if (n.reachable === false) bump('crit');
+
+    const banner = $('banner');
+    banner.classList.remove('ok','warn','crit');
+    banner.classList.add(worst);
+    setDot($('banner-dot'), worst);
+    $('banner-title').textContent =
+      worst === 'ok'   ? 'All systems operational' :
+      worst === 'warn' ? 'Some systems degraded'    :
+                         'Systems reporting errors';
+    $('banner-sub').textContent =
+      (dk.available ? dk.running + ' containers · ' : '') +
+      (f.available ? (f.currently_banned ?? 0) + ' banned · ' : '') +
+      (n.reachable ? 'n8n online' : 'n8n offline');
+    updateLastSeen();
+  }
+
+  function updateLastSeen() {
+    if (lastTs) $('last-update').textContent = 'updated ' + fmtAgo(lastTs);
+  }
+  setInterval(updateLastSeen, 5000);
+
+  // ----- WebSocket with auto-reconnect -----
+  let ws = null;
+  let reconnectDelay = 1000;
+  function connect() {
+    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(proto + '//' + location.host + '/ws');
+    ws.onopen = () => {
+      reconnectDelay = 1000;
+      setDot($('conn-dot'), 'ok');
+    };
+    ws.onmessage = (ev) => {
+      try { render(JSON.parse(ev.data)); } catch(e) { console.error(e); }
+    };
+    ws.onclose = () => {
+      setDot($('conn-dot'), 'crit');
+      setTimeout(connect, reconnectDelay);
+      reconnectDelay = Math.min(reconnectDelay * 2, 30000);
+    };
+    ws.onerror = () => { try { ws.close(); } catch(e) {} };
+  }
+  connect();
+
+  // Fallback: fetch immediate snapshot
+  fetch('/api/status').then(r => r.json()).then(render).catch(()=>{});
+})();
+</script>
+</body>
+</html>
