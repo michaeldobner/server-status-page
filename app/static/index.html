@@ -375,10 +375,7 @@ header .host { font-family: var(--mono); font-size: 12px; color: var(--text-fain
   <header>
     <div class="brand">
       <div class="dot off" id="hdr-dot"></div>
-      <div>
-        <h1>Server Status</h1>
-        <div class="host">161.97.132.188</div>
-      </div>
+      <h1>Server Status</h1>
     </div>
     <div class="last-update" id="last-update">connecting…</div>
   </header>
@@ -750,7 +747,6 @@ function renderTech(d) {
     <div class="dot ${n8nSev}"></div>
     <span style="font-weight:500">${n8n.reachable ? 'Reachable' : 'Unreachable'}</span>
     ${n8n.latency_ms != null ? `<span class="n8n-latency">${n8n.latency_ms}ms</span>` : ''}
-    ${n8n.url ? `<span class="n8n-url">${esc(n8n.url)}</span>` : ''}
   `;
 
   // Infra containers
